@@ -39,7 +39,7 @@ export default function Page() {
   return (
     <>
       <div className="mt-2 max-sm:hidden">
-        <Table className="bg-background">
+        <Table className="bg-background dark:bg-zinc-900">
           <TableHeader>
             <TableRow>
               <TableHead>案件代碼</TableHead>
@@ -54,7 +54,7 @@ export default function Page() {
             {data.length === 0 ? (
               <TableRow>
                 <TableCell
-                  colSpan={5}
+                  colSpan={6}
                   className="text-center text-muted-foreground"
                 >
                   目前沒有郵件
