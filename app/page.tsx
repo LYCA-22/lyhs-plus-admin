@@ -67,7 +67,7 @@ export default function Page() {
     data: BackendStatus | null;
     title: string;
   }) => (
-    <div className="bg-white dark:bg-zinc-900 rounded-xl p-5 border-border border shadow-sm flex flex-col gap-3 transition-all min-w-[350px]">
+    <div className="bg-white dark:bg-zinc-900 rounded-xl p-5 border-border border shadow-sm flex flex-col gap-3 transition-all">
       {loading ? (
         <div className="flex items-center justify-center p-5">
           <Loader />
@@ -146,7 +146,7 @@ export default function Page() {
   );
 
   return (
-    <div className="flex flex-col gap-2 p-4">
+    <div className="flex flex-col gap-2 p-2">
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-xl font-semibold">System Status</h1>
         <button

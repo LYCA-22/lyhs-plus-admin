@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useAppSelector } from "@/store/hook";
 import { apiServices } from "@/services/api";
+import { motion } from "framer-motion";
 
 const gradientPresets = [
   "from-blue-500 via-purple-500 to-pink-500",
@@ -26,7 +27,24 @@ const gradientPresets = [
   "from-rose-400 via-fuchsia-500 to-indigo-500",
 ];
 
+type Props = {
+  id: number;
+  tile: string;
+};
+
+const ITEMS: Props[] = [
+  { id: 1, tile: "Overview" },
+  { id: 2, tile: "Integrations" },
+  { id: 3, tile: "Activity" },
+  { id: 4, tile: "Domains" },
+  { id: 5, tile: "Usage" },
+  { id: 6, tile: "AI" },
+  { id: 7, tile: "Settings" },
+];
+
 export function Header() {
+  const [active, setActive] = useState<Props>(ITEMS[0]);
+  const [isHover, setIsHover] = useState<Props | null>(null);
   const [theme, setTheme] = useState("");
   const [mounted, setMounted] = useState(false);
   const [gradient] = useState(
@@ -150,6 +168,37 @@ export function Header() {
             </TabsTrigger>
           </TabsList>
         </Tabs>
+        <div className="flex overflow-x-auto">
+          {ITEMS.map((item) => (
+            <button
+              key={item.id}
+              className="py-2 relative duration-300 transition-colors hover:!text-white"
+              onClick={() => setActive(item)}
+              onMouseEnter={() => setIsHover(item)}
+              onMouseLeave={() => setIsHover(null)}
+              style={{ color: active.id === item.id ? "#FFF" : "#888888" }}
+            >
+              <div className="px-5 py-2 relative">
+                {item.tile}
+                {isHover?.id === item.id && (
+                  <motion.div
+                    layoutId="hover-bg"
+                    className="absolute bottom-0 left-0 right-0 w-full h-full bg-white/10"
+                    style={{
+                      borderRadius: 6,
+                    }}
+                  />
+                )}
+              </div>
+              {active.id === item.id && (
+                <motion.div
+                  layoutId="active"
+                  className="absolute bottom-0 left-0 right-0 w-full h-0.5 bg-white"
+                />
+              )}
+            </button>
+          ))}
+        </div>
       </div>
     </header>
   );
