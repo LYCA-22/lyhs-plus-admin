@@ -91,4 +91,55 @@ export const apiServices = {
       throw error;
     }
   },
+  async updateMail(code: string, userName: string, status: string) {
+    try {
+      const response = await fetch(`${API_BASE_URL}/mail/project/update`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          code: code,
+          handler: userName,
+          status: status,
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        return data;
+      } else {
+        const result = await response.json();
+        throw new Error(result.error);
+      }
+    } catch (error) {
+      console.error("Error in takeOverMail:", error);
+      throw error;
+    }
+  },
+  async getMailDetail(code: string, userId: string) {
+    try {
+      const response = await fetch(`${API_BASE_URL}/mail/project/detail`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          code: code,
+          userId: userId,
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        return data;
+      } else {
+        const result = await response.json();
+        throw new Error(result.error);
+      }
+    } catch (error) {
+      console.error("Error in getMailDetail:", error);
+      throw error;
+    }
+  },
 };

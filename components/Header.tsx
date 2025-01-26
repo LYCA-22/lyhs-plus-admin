@@ -2,8 +2,7 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import { ThemeToggle } from "./themeToggle";
-import { Tabs, TabsList, TabsTrigger } from "./ui/tabs";
-import { useRouter, usePathname } from "next/navigation";
+import { usePathname } from "next/navigation";
 import SystemCheck from "./initUserCheck";
 import {
   DropdownMenu,
@@ -16,6 +15,8 @@ import {
 import { useAppSelector } from "@/store/hook";
 import { apiServices } from "@/services/api";
 import { motion } from "framer-motion";
+import Link from "next/link";
+import { SquareArrowOutUpRight } from "lucide-react";
 
 const gradientPresets = [
   "from-blue-500 via-purple-500 to-pink-500",
@@ -30,38 +31,25 @@ const gradientPresets = [
 type Props = {
   id: number;
   tile: string;
+  link: string;
 };
 
 const ITEMS: Props[] = [
-  { id: 1, tile: "Overview" },
-  { id: 2, tile: "Integrations" },
-  { id: 3, tile: "Activity" },
-  { id: 4, tile: "Domains" },
-  { id: 5, tile: "Usage" },
-  { id: 6, tile: "AI" },
-  { id: 7, tile: "Settings" },
+  { id: 1, tile: "總覽", link: "/" },
+  { id: 2, tile: "學權信箱", link: "/mailList" },
+  { id: 3, tile: "帳號管理", link: "/account" },
 ];
 
 export function Header() {
-  const [active, setActive] = useState<Props>(ITEMS[0]);
   const [isHover, setIsHover] = useState<Props | null>(null);
   const [theme, setTheme] = useState("");
   const [mounted, setMounted] = useState(false);
   const [gradient] = useState(
     () => gradientPresets[Math.floor(Math.random() * gradientPresets.length)],
   );
-  const router = useRouter();
   const pathname = usePathname();
   const sessionId = useAppSelector((state) => state.userData.sessionId);
   const email = useAppSelector((state) => state.userData.email);
-
-  // 根據路徑獲取當前頁面值
-  const getCurrentTab = () => {
-    if (pathname === "/") return "overview";
-    if (pathname === "/mailbox") return "mailbox";
-    if (pathname === "/account") return "account";
-    return "overview"; // 默認值
-  };
 
   const userLogout = async () => {
     await apiServices.Logout(sessionId, email);
@@ -96,23 +84,6 @@ export function Header() {
     return null;
   }
 
-  const handleTabChange = (value: string) => {
-    // 根據 tab 值導航到相應路徑
-    switch (value) {
-      case "overview":
-        router.push("/");
-        break;
-      case "mailbox":
-        router.push("/mailbox");
-        break;
-      case "account":
-        router.push("/account");
-        break;
-      default:
-        router.push("/");
-    }
-  };
-
   return (
     <header className="p-5 pt-3 pb-0 border-b border-border">
       <SystemCheck />
@@ -130,6 +101,21 @@ export function Header() {
         </div>
         <div aria-label="header-part-two" className="flex justify-center gap-2">
           <ThemeToggle />
+          <div className="flex gap-1">
+            <a
+              href="https://dev.plus.lyhsca.org"
+              className="text-sm p-1 text-zinc-400 justify-center items-center hover:text-foreground flex gap-1"
+            >
+              APP
+              <SquareArrowOutUpRight size={12} />
+            </a>
+            <a
+              href="https://dev.plus.lyhsca.org"
+              className="text-sm flex p-1 text-zinc-400 justify-center items-center hover:text-foreground"
+            >
+              Feedback
+            </a>
+          </div>
           <DropdownMenu>
             <DropdownMenuTrigger>
               <div
@@ -138,7 +124,7 @@ export function Header() {
                     bg-gradient-to-r ${gradient}
                     opacity-80 group-hover:opacity-100
                     transition-opacity
-                    h-8 w-8 rounded-full
+                    h-8 w-8 rounded-full ml-1
                   `}
               />
             </DropdownMenuTrigger>
@@ -151,49 +137,30 @@ export function Header() {
         </div>
       </div>
       <div aria-label="navbar" className="mt-2">
-        <Tabs
-          defaultValue={getCurrentTab()}
-          value={getCurrentTab()}
-          onValueChange={handleTabChange}
-        >
-          <TabsList variant="underline">
-            <TabsTrigger variant="underline" value="overview">
-              總覽
-            </TabsTrigger>
-            <TabsTrigger variant="underline" value="mailbox">
-              學權信箱
-            </TabsTrigger>
-            <TabsTrigger variant="underline" value="account">
-              帳號管理
-            </TabsTrigger>
-          </TabsList>
-        </Tabs>
         <div className="flex overflow-x-auto">
           {ITEMS.map((item) => (
             <button
               key={item.id}
-              className="py-2 relative duration-300 transition-colors hover:!text-white"
-              onClick={() => setActive(item)}
+              className={`py-3 relative duration-300 transition-colors ${pathname === item.link ? "text-foreground" : "text-zinc-400"}`}
               onMouseEnter={() => setIsHover(item)}
               onMouseLeave={() => setIsHover(null)}
-              style={{ color: active.id === item.id ? "#FFF" : "#888888" }}
             >
-              <div className="px-5 py-2 relative">
+              <Link className="px-4 py-2 relative text-[15px]" href={item.link}>
                 {item.tile}
                 {isHover?.id === item.id && (
                   <motion.div
                     layoutId="hover-bg"
-                    className="absolute bottom-0 left-0 right-0 w-full h-full bg-white/10"
+                    className="absolute bottom-0 left-0 right-0 w-full h-full bg-zinc-200/40 dark:bg-zinc-50/10"
                     style={{
                       borderRadius: 6,
                     }}
                   />
                 )}
-              </div>
-              {active.id === item.id && (
+              </Link>
+              {pathname === item.link && (
                 <motion.div
                   layoutId="active"
-                  className="absolute bottom-0 left-0 right-0 w-full h-0.5 bg-white"
+                  className="absolute bottom-0 left-0 right-0 w-full h-0.5 bg-foreground"
                 />
               )}
             </button>
