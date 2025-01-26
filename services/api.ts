@@ -201,4 +201,29 @@ export const apiServices = {
       throw error;
     }
   },
+  async deleteCode(sessionId: string, code: string) {
+    try {
+      const response = await fetch(`${API_BASE_URL}/auth/code/delete`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${sessionId}`,
+        },
+        body: JSON.stringify({
+          code: code,
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        return data;
+      } else {
+        const result = await response.json();
+        throw new Error(result.error);
+      }
+    } catch (error) {
+      console.error("Error in deleteCode:", error);
+      throw error;
+    }
+  },
 };
