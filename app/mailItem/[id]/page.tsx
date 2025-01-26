@@ -4,6 +4,7 @@ import { useParams, useSearchParams } from "next/navigation";
 import { apiServices } from "@/services/api";
 import { useAppSelector } from "@/store/hook";
 
+export const runtime = "edge";
 interface MailItem {
   id: string;
   searchCode: string;
