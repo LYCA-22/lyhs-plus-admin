@@ -144,4 +144,61 @@ export const apiServices = {
       throw error;
     }
   },
+  async createCode(
+    sessionId: string,
+    vuli: boolean,
+    level: string,
+    setError: (error: string) => void,
+    setCreateCodeStatus: (createCodeStatus: boolean) => void,
+  ) {
+    setCreateCodeStatus(true);
+    try {
+      const response = await fetch(`${API_BASE_URL}/auth/createCode`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${sessionId}`,
+        },
+        body: JSON.stringify({
+          vuli: vuli,
+          level: level,
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        return data.code;
+      } else {
+        const result = await response.json();
+        setError(result.error);
+        throw new Error(result.error);
+      }
+    } catch (error) {
+      console.error("Error in createCode:", error);
+      throw error;
+    } finally {
+      setCreateCodeStatus(false);
+    }
+  },
+  async getAllCodeData(sessionId: string) {
+    try {
+      const response = await fetch(`${API_BASE_URL}/auth/getAllCode`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${sessionId}`,
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        return data;
+      } else {
+        const result = await response.json();
+        throw new Error(result.error);
+      }
+    } catch (error) {
+      console.error("Error in getAllCodeDate:", error);
+      throw error;
+    }
+  },
 };

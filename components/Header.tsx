@@ -44,7 +44,7 @@ type Props = {
 const ITEMS: Props[] = [
   { id: 1, tile: "總覽", link: "/" },
   { id: 2, tile: "學權信箱", link: "/mailList" },
-  { id: 3, tile: "帳號管理", link: "/account" },
+  { id: 3, tile: "人員代碼管理", link: "/staff" },
 ];
 
 export function Header() {
@@ -56,6 +56,7 @@ export function Header() {
   );
   const pathname = usePathname();
   const userData = useAppSelector((state) => state.userData);
+  const isLoaded = useAppSelector((state) => state.systemStatus.isLoading);
   const [dialogOpen, setDialogOpen] = useState(false);
 
   const userLogout = async () => {
@@ -88,10 +89,12 @@ export function Header() {
   }, []);
 
   useEffect(() => {
-    if (userData.type !== "staff") {
+    if (userData.type !== "staff" && !isLoaded) {
       setDialogOpen(true);
+    } else {
+      setDialogOpen(false);
     }
-  }, [userData]);
+  }, [userData, isLoaded]);
 
   if (!mounted) {
     return null;
@@ -202,7 +205,7 @@ export function Header() {
           ))}
         </div>
       </div>
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+      <Dialog open={dialogOpen}>
         <DialogContent>
           <DialogHeader className="space-y-3 mt-1">
             <DialogTitle>您的權限不足。</DialogTitle>

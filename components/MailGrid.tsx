@@ -51,7 +51,8 @@ export function MailGrid({
   if (data.length === 0) {
     return (
       <div className="text-center text-muted-foreground">
-        {userData.level === "L3" || userData.level === "A1"
+        {userData.level === "L3" ||
+        (userData.level === "A1" && userData.type === "staff")
           ? "目前沒有郵件"
           : "您沒有權限查閱，若需查閱此頁內容請聯絡資訊組升級您帳號的等級。"}
       </div>
@@ -82,11 +83,14 @@ export function MailGrid({
                 className="rounded-xl"
                 onClick={(e) => e.stopPropagation()}
               >
-                <div className="flex p-1 justify-center items-center rounded-xl dark:hover:bg-zinc-700 hover:bg-zinc-200">
+                <div
+                  className="flex p-1 justify-center items-center rounded-sm dark:hover:bg-zinc-700 hover:bg-zinc-200"
+                  onClick={(e) => e.stopPropagation()}
+                >
                   <Ellipsis size={20} className="text-foreground opacity-50" />
                 </div>
               </DropdownMenuTrigger>
-              <DropdownMenuContent>
+              <DropdownMenuContent onClick={(e) => e.stopPropagation()}>
                 {mail.handler === "" && (
                   <>
                     <p className="p-2 text-xs opacity-50 max-w-[220px]">

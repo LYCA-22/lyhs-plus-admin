@@ -76,7 +76,8 @@ export function MailTable({
                 "載入中..."
               ) : (
                 <>
-                  {userData.level === "L3" || userData.level === "A1"
+                  {userData.level === "L3" ||
+                  (userData.level === "A1" && userData.type === "staff")
                     ? "目前沒有郵件"
                     : "您沒有權限查閱，若需查閱此頁內容請聯絡資訊組升級您帳號的等級。"}
                 </>
@@ -121,7 +122,10 @@ export function MailTable({
                       />
                     </div>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent className="mr-5">
+                  <DropdownMenuContent
+                    className="mr-5"
+                    onClick={(e) => e.stopPropagation()}
+                  >
                     {mail.handler === "" && (
                       <>
                         <p className="p-2 text-xs opacity-50 max-w-[220px]">
