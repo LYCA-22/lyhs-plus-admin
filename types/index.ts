@@ -14,3 +14,16 @@ export interface DatabaseStatus {
   latency?: string;
   error?: string;
 }
+
+export interface UserData {
+  sessionId: string;
+  id: string;
+  name: string;
+  email: string;
+  level: string;
+  type: "staff" | "normal" | "";
+  role: string;
+  grade: string;
+  class: string;
+  isLoggedIn: boolean;
+}

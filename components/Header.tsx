@@ -16,7 +16,7 @@ import { useAppSelector } from "@/store/hook";
 import { apiServices } from "@/services/api";
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { SquareArrowOutUpRight } from "lucide-react";
+import { SquareArrowOutUpRight, LogOut, UserPen } from "lucide-react";
 
 const gradientPresets = [
   "from-blue-500 via-purple-500 to-pink-500",
@@ -48,11 +48,10 @@ export function Header() {
     () => gradientPresets[Math.floor(Math.random() * gradientPresets.length)],
   );
   const pathname = usePathname();
-  const sessionId = useAppSelector((state) => state.userData.sessionId);
-  const email = useAppSelector((state) => state.userData.email);
+  const userData = useAppSelector((state) => state.userData);
 
   const userLogout = async () => {
-    await apiServices.Logout(sessionId, email);
+    await apiServices.Logout(userData.sessionId, userData.email);
     window.location.reload();
   };
 
@@ -95,23 +94,22 @@ export function Header() {
             height={40}
             width={40}
           />
-          <div className="p-1 px-2 border border-border rounded-full text-sm">
-            Admin
+          <div className="p-1 px-2 font-medium text-[16px]">
+            LYHS Plus 管理中心
           </div>
         </div>
         <div aria-label="header-part-two" className="flex justify-center gap-2">
-          <ThemeToggle />
-          <div className="flex gap-1">
+          <div className="flex gap-2 max-sm:hidden">
             <a
               href="https://dev.plus.lyhsca.org"
-              className="text-sm p-1 text-zinc-400 justify-center items-center hover:text-foreground flex gap-1"
+              className="text-sm p-1 text-zinc-500 justify-center items-center hover:text-foreground flex gap-1"
             >
               APP
               <SquareArrowOutUpRight size={12} />
             </a>
             <a
               href="https://dev.plus.lyhsca.org"
-              className="text-sm flex p-1 text-zinc-400 justify-center items-center hover:text-foreground"
+              className="text-sm flex p-1 text-zinc-500 justify-center items-center hover:text-foreground"
             >
               Feedback
             </a>
@@ -129,9 +127,32 @@ export function Header() {
               />
             </DropdownMenuTrigger>
             <DropdownMenuContent className="mr-5">
-              <DropdownMenuLabel>My Account</DropdownMenuLabel>
+              <DropdownMenuLabel className="text-[14px] pb-0 pr-4">
+                {userData.name}
+              </DropdownMenuLabel>
+              <DropdownMenuLabel className="text-[14px] opacity-50 pt-0 font-normal pr-4">
+                {userData.email}
+              </DropdownMenuLabel>
+              <DropdownMenuItem className="mt-1 justify-between cursor-pointer">
+                帳號設定
+                <UserPen size={15} />
+              </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={userLogout}>登出</DropdownMenuItem>
+              <div className="flex justify-between items-center text-sm pl-3">
+                <p className="opacity-70">主題</p>
+                <ThemeToggle />
+              </div>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem className="mt-1 cursor-pointer">
+                LYHS+ 形象網站
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={userLogout}
+                className="justify-between mt-1 cursor-pointer"
+              >
+                登出
+                <LogOut size={15} />
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
