@@ -26,7 +26,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Copy, Check, Ellipsis, Trash2 } from "lucide-react";
-import { useRouter } from "next/navigation";
 
 interface CodeData {
   createUserId: string;
