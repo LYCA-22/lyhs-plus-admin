@@ -12,6 +12,13 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { useAppSelector } from "@/store/hook";
 import { apiServices } from "@/services/api";
 import { motion } from "framer-motion";
@@ -49,6 +56,7 @@ export function Header() {
   );
   const pathname = usePathname();
   const userData = useAppSelector((state) => state.userData);
+  const [dialogOpen, setDialogOpen] = useState(false);
 
   const userLogout = async () => {
     await apiServices.Logout(userData.sessionId, userData.email);
@@ -78,6 +86,12 @@ export function Header() {
 
     return () => observer.disconnect();
   }, []);
+
+  useEffect(() => {
+    if (userData.type !== "staff") {
+      setDialogOpen(true);
+    }
+  }, [userData]);
 
   if (!mounted) {
     return null;
@@ -188,6 +202,16 @@ export function Header() {
           ))}
         </div>
       </div>
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogContent>
+          <DialogHeader className="space-y-3 mt-1">
+            <DialogTitle>您的權限不足。</DialogTitle>
+            <DialogDescription>
+              您的權限過低，導致無法瀏覽本網站。請聯絡班聯會資訊組升級您的帳號等級。
+            </DialogDescription>
+          </DialogHeader>
+        </DialogContent>
+      </Dialog>
     </header>
   );
 }

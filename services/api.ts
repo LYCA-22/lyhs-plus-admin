@@ -14,6 +14,8 @@ export const apiServices = {
 
       if (!response.ok) {
         const result = await response.json();
+        window.location.href =
+          "https://auth.lyhsca.org/account/login?redirect_url=https://admin.lyhsca.org";
         throw Error(result.error);
       }
       const data = await response.json();
