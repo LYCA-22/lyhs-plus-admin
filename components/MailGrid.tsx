@@ -67,7 +67,10 @@ export function MailGrid({
           className="bg-background dark:bg-zinc-900 hover:bg-accent dark:hover:bg-zinc-800 rounded-xl border border-border shadow-sm p-4 cursor-pointer transition-colors"
           onClick={(e) => {
             const target = e.target as Element;
-            if (mail.handler !== "" && !target.closest('[role="menuitem"]')) {
+            if (
+              mail.handler === userData.name &&
+              !target.closest('[role="menuitem"]')
+            ) {
               router.push(`/mailItem/${mail.id}?code=${mail.searchCode}`);
             } else {
               setIsOpen(true);
