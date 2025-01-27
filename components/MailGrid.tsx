@@ -126,7 +126,7 @@ export function MailGrid({
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
-                  className="!text-red-600 hover:!bg-red-100 justify-between"
+                  className="!text-red-600 dark:hover:!bg-red-950 hover:!bg-red-100 justify-between"
                   disabled={
                     mail.handler === "" || mail.handler !== userData.name
                   }
@@ -134,6 +134,11 @@ export function MailGrid({
                   刪除
                   <Trash2 size={15} />
                 </DropdownMenuItem>
+                {userData.level === "A1" && mail.handler !== userData.name && (
+                  <DropdownMenuItem className="!text-red-600 dark:hover:!bg-red-950 hover:!bg-red-100 justify-between">
+                    強制刪除
+                  </DropdownMenuItem>
+                )}
               </DropdownMenuContent>
             </DropdownMenu>
           </div>

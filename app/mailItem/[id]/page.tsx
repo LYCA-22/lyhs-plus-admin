@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, FormEvent } from "react";
 import { useParams, useSearchParams } from "next/navigation";
 import { apiServices } from "@/services/api";
 import { useAppSelector } from "@/store/hook";
@@ -28,9 +28,34 @@ export default function MailItemPage() {
   const id = params.id as string;
   const code = useSearchParams().get("code") as string;
   const userId = useAppSelector((state) => state.userData.id);
+  const userData = useAppSelector((state) => state.userData);
   const isLoaded = useAppSelector((state) => state.systemStatus.isLoading);
   const [data, setData] = useState<MailItem | null>(null);
   const [loading, setLoading] = useState(true);
+  const [copied, setCopied] = useState(false);
+  const [status, setStatus] = useState("");
+  const [update, setUpdate] = useState(false);
+
+  const copyCode = (code: string) => {
+    navigator.clipboard.writeText(code);
+    setCopied(true);
+    setTimeout(() => {
+      setCopied(false);
+    }, 2000);
+  };
+
+  const transformTime = (time: string) => {
+    const date = new Date(time);
+    return date.toLocaleString();
+  };
+
+  const UpdateProject = async (e: FormEvent) => {
+    e.preventDefault();
+    setUpdate(true);
+    await apiServices.updateMail(code, userData.name, status);
+    setUpdate(false);
+    window.location.reload();
+  };
 
   useEffect(() => {
     const getMailItem = async () => {
@@ -38,6 +63,7 @@ export default function MailItemPage() {
         setLoading(true);
         const data = await apiServices.getMailDetail(code, userId);
         setData(data);
+        setStatus(data.status);
       } catch (e) {
         console.error(e);
       } finally {
@@ -88,7 +114,7 @@ export default function MailItemPage() {
       >
         <div
           aria-label="box-leftside"
-          className="bg-white rounded-xl border my-2"
+          className="bg-white dark:bg-zinc-900 rounded-xl border my-2 h-[fit-content]"
         >
           <ul className="m-4">
             <li
@@ -151,9 +177,15 @@ export default function MailItemPage() {
               className="flex justify-between items-center mt-2"
             >
               <span className="min-w-[100px]">信件專用代碼</span>
-              <span className="grow border-b py-1 border-border flex justify-end font-bold">
-                {data.searchCode}
-              </span>
+              <div className="grow border-b py-1 border-border flex justify-end font-bold">
+                <span>{data.searchCode}</span>
+              </div>
+              <button
+                className="m-1 border border-border rounded-lg p-1 px-2 ml-2 hover:bg-hoverbg"
+                onClick={() => copyCode(data.searchCode)}
+              >
+                {copied ? "已複製" : "複製"}
+              </button>
             </li>
             <li
               aria-label="inf-id"
@@ -170,7 +202,7 @@ export default function MailItemPage() {
             >
               <span className="min-w-[100px]">建立時間</span>
               <span className="border-b py-1 border-border flex justify-end grow text-sm ">
-                {data.createdTime}
+                {transformTime(data.createdTime)}
               </span>
             </li>
             <li
@@ -179,15 +211,109 @@ export default function MailItemPage() {
             >
               <span className="min-w-[100px]">更新時間</span>
               <span className="py-1 flex justify-end grow text-sm ">
-                {data.updatedTime}
+                {transformTime(data.updatedTime)}
               </span>
             </li>
           </ul>
         </div>
         <div
           aria-label="box-rightside"
-          className="bg-white rounded-xl border p-4 my-2"
-        ></div>
+          className="bg-white dark:bg-zinc-900 rounded-xl border p-4 my-2 grow overflow-y-auto"
+        >
+          <div>
+            <ul className="m-4">
+              <li
+                aria-label="inf-title"
+                className="flex items-center gap-2 font-medium text-[18px]"
+              >
+                <Info />
+                信件內容
+              </li>
+              <li
+                aria-label="inf-code"
+                className="flex justify-between items-center mt-2"
+              >
+                <span className="min-w-[100px]">類別</span>
+                <div className="grow border-b py-1 border-border flex justify-end">
+                  <span>{data.type}</span>
+                </div>
+              </li>
+              <li
+                aria-label="inf-code"
+                className="flex justify-between items-center mt-2"
+              >
+                <span className="min-w-[100px]">大綱</span>
+                <div className="grow border-b py-1 border-border flex justify-end">
+                  <span>{data.title}</span>
+                </div>
+              </li>
+              <li
+                aria-label="inf-id"
+                className="flex justify-between items-center mt-2"
+              >
+                <span className="min-w-[100px]">說明</span>
+                <span className="border-b py-1 border-border flex justify-end grow text-sm text-end">
+                  {data.description}
+                </span>
+              </li>
+              <li
+                aria-label="inf-crtime"
+                className="flex justify-between items-center mt-2"
+              >
+                <span className="min-w-[100px]">解決方式</span>
+                <span className="py-1 flex justify-end grow text-sm ">
+                  {data.solution}
+                </span>
+              </li>
+            </ul>
+          </div>
+          <div className="w-full h-[1px] bg-border"></div>
+          <form className="m-2" onSubmit={(e) => UpdateProject(e)}>
+            <div className="p-2 flex flex-col space-y-4">
+              <div>
+                <label htmlFor="status" className="font-medium">
+                  狀態資訊
+                </label>
+                <p className="my-1 text-sm opacity-60">
+                  輸入良好的敘述可幫助投信者更快進入狀況，且不會造成不必要的慌張。辛苦承辦人啦～加油！
+                </p>
+              </div>
+              <input
+                id="status"
+                type="text"
+                value={status}
+                onChange={(e) => setStatus(e.target.value)}
+                className="focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-50 border border-border rounded-lg p-2 px-4 w-full transition-all"
+              />
+            </div>
+            <div className="p-2 flex flex-col space-y-4">
+              <div>
+                <label htmlFor="handler" className="font-medium">
+                  承辦人
+                </label>
+                <p className="my-1 text-sm opacity-60">
+                  負責處理此次信件的人員。
+                </p>
+              </div>
+              <input
+                id="handler"
+                type="text"
+                value={data.handler}
+                disabled
+                readOnly
+                className="focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-50 border border-border rounded-lg p-2 px-4 w-full transition-all"
+              />
+            </div>
+            <div className="p-2 flex">
+              <button
+                disabled={update}
+                className="ml-auto bg-foreground text-background rounded-lg p-2 px-4 hover:opacity-80 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {update ? "更新中..." : "更新信件資訊"}
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   );
