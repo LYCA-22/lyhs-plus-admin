@@ -3,31 +3,15 @@ import { apiServices } from "@/services/api";
 import { updateSystemData } from "@/store/systemSlice";
 import { updateUserData } from "@/store/userSlice";
 
-function getCookie(name: string) {
-  if (typeof window === "undefined") return null;
-
-  try {
-    const value = `; ${document.cookie}`;
-    const parts = value.split(`; ${name}=`);
-    if (parts.length === 2) {
-      const lastPart = parts.pop();
-      return lastPart?.split(";")[0] ?? null;
-    }
-    return null;
-  } catch {
-    return null;
-  }
-}
-
 export async function checkUserSession(
   dispatch: AppDispatch,
   os: string,
   browser: string,
   isMobile: boolean,
+  sessionId: string,
 ) {
   try {
     dispatch({ type: "systemStatus/setLoading", payload: true });
-    const sessionId = getCookie("sessionId");
 
     if (!sessionId) {
       window.location.href =

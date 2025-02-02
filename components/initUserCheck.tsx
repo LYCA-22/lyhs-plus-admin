@@ -3,6 +3,20 @@ import { useEffect, useState } from "react";
 import { store } from "@/store/store";
 import { checkUserSession } from "@/utils/userCheck";
 
+function getCookie(name: string) {
+  try {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) {
+      const lastPart = parts.pop();
+      return lastPart?.split(";")[0] ?? null;
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+
 export default function SystemCheck() {
   const [os, setOS] = useState("");
   const [browser, setBrowser] = useState("");
@@ -43,10 +57,11 @@ export default function SystemCheck() {
   }, []);
 
   useEffect(() => {
+    const sessionId = getCookie("sessionId");
     getDeviceInfo();
-    setTimeout(() => {
-      checkUserSession(store.dispatch, os, browser, isMobile);
-    }, 200);
+    if (sessionId) {
+      checkUserSession(store.dispatch, os, browser, isMobile, sessionId);
+    }
   }, [os, browser, isMobile]);
 
   return null;
