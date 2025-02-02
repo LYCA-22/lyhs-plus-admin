@@ -3,20 +3,35 @@ import { apiServices } from "@/services/api";
 import { updateSystemData } from "@/store/systemSlice";
 import { updateUserData } from "@/store/userSlice";
 
+function getCookie(name: string) {
+  try {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) {
+      const lastPart = parts.pop();
+      return lastPart?.split(";")[0] ?? null;
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+
 export async function checkUserSession(
   dispatch: AppDispatch,
   os: string,
   browser: string,
   isMobile: boolean,
-  sessionId: string,
 ) {
   try {
-    dispatch({ type: "systemStatus/setLoading", payload: true });
-    const data = await apiServices.getUserData(sessionId);
+    const sessionId = getCookie("sessionId");
     if (!sessionId) {
       window.location.href =
         "https://auth.lyhsca.org/account/login?redirect_url=https://admin.lyhsca.org";
+      return;
     }
+    dispatch({ type: "systemStatus/setLoading", payload: true });
+    const data = await apiServices.getUserData(sessionId);
     dispatch(
       updateUserData({
         sessionId: sessionId,
