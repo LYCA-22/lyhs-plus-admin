@@ -12,14 +12,11 @@ export async function checkUserSession(
 ) {
   try {
     dispatch({ type: "systemStatus/setLoading", payload: true });
-
-    if (!sessionId) {
+    const data = await apiServices.getUserData(sessionId);
+    if (!data) {
       window.location.href =
         "https://auth.lyhsca.org/account/login?redirect_url=https://admin.lyhsca.org";
-      return;
     }
-
-    const data = await apiServices.getUserData(sessionId);
     dispatch(
       updateUserData({
         sessionId: sessionId,
