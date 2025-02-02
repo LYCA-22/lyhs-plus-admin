@@ -44,7 +44,9 @@ export default function SystemCheck() {
 
   useEffect(() => {
     getDeviceInfo();
-    checkUserSession(store.dispatch, os, browser, isMobile);
+    setTimeout(() => {
+      checkUserSession(store.dispatch, os, browser, isMobile);
+    }, 200);
   }, [os, browser, isMobile]);
 
   return null;
