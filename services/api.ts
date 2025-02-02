@@ -226,4 +226,54 @@ export const apiServices = {
       throw error;
     }
   },
+  async getAllEvent() {
+    try {
+      const response = await fetch(`${API_BASE_URL}/event/all`, {
+        method: "GET",
+      });
+
+      if (response.ok) {
+        const events = await response.json();
+        return events;
+      } else {
+        const result = await response.json();
+        throw new Error(result.error);
+      }
+    } catch (error) {
+      console.error("Error in getAllEvent:", error);
+      throw error;
+    }
+  },
+  async addEvent(event: {
+    id: string;
+    title: string;
+    description: string;
+    date: string;
+  }) {
+    try {
+      const response = await fetch(`${API_BASE_URL}/event/add`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          id: event.id,
+          title: event.title,
+          description: event.description,
+          date: event.date,
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        return data;
+      } else {
+        const result = await response.json();
+        throw new Error(result.error);
+      }
+    } catch (error) {
+      console.error("Error in createEvent:", error);
+      throw error;
+    }
+  },
 };
