@@ -278,8 +278,8 @@ export const apiServices = {
   },
   async deleteProject(code: string, userId: string) {
     try {
-      const response = await fetch(`${API_BASE_URL}/event/delete`, {
-        method: "POST",
+      const response = await fetch(`${API_BASE_URL}/mail/project/delete`, {
+        method: "DELETE",
         headers: {
           "Content-Type": "application/json",
         },

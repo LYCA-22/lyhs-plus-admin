@@ -134,7 +134,10 @@ export function MailGrid({
                   disabled={
                     mail.handler === "" || mail.handler !== userData.name
                   }
-                  onClick={() => deleteProject(mail.searchCode)}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    deleteProject(mail.searchCode);
+                  }}
                 >
                   {deleteLoading ? "刪除中..." : "刪除"}
                   <Trash2 size={15} />
