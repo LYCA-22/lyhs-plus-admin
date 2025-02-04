@@ -35,6 +35,8 @@ interface MailTableProps {
   update: boolean;
   onTakeOver: (code: string, e: FormEvent) => void;
   setIsOpen: (value: boolean) => void;
+  deleteProject: (code: string) => void;
+  deleteLoading: boolean;
 }
 
 export function MailTable({
@@ -44,6 +46,8 @@ export function MailTable({
   update,
   onTakeOver,
   setIsOpen,
+  deleteProject,
+  deleteLoading,
 }: MailTableProps) {
   const router = useRouter();
 
@@ -165,8 +169,9 @@ export function MailTable({
                         disabled={
                           mail.handler === "" || mail.handler !== userData.name
                         }
+                        onClick={() => deleteProject(mail.searchCode)}
                       >
-                        刪除
+                        {deleteLoading ? "刪除中..." : "刪除"}
                         <Trash2 size={15} />
                       </DropdownMenuItem>
                       {userData.level === "A1" &&

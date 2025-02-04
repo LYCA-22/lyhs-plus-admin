@@ -27,6 +27,8 @@ interface MailGridProps {
   update: boolean;
   onTakeOver: (code: string, e: FormEvent) => void;
   setIsOpen: (value: boolean) => void;
+  deleteProject: (code: string) => void;
+  deleteLoading: boolean;
 }
 
 export function MailGrid({
@@ -36,6 +38,8 @@ export function MailGrid({
   update,
   onTakeOver,
   setIsOpen,
+  deleteProject,
+  deleteLoading,
 }: MailGridProps) {
   const router = useRouter();
 
@@ -130,8 +134,9 @@ export function MailGrid({
                   disabled={
                     mail.handler === "" || mail.handler !== userData.name
                   }
+                  onClick={() => deleteProject(mail.searchCode)}
                 >
-                  刪除
+                  {deleteLoading ? "刪除中..." : "刪除"}
                   <Trash2 size={15} />
                 </DropdownMenuItem>
                 {userData.level === "A1" && mail.handler !== userData.name && (

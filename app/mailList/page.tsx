@@ -25,12 +25,13 @@ interface MailItem {
 
 export default function Page() {
   const userData = useAppSelector((state) => state.userData);
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState<boolean>(false);
   const [data, setData] = useState<MailItem[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState<boolean>(true);
   const systemLoading = useAppSelector((state) => state.systemStatus.isLoading);
-  const [update, setUpdate] = useState(false);
+  const [update, setUpdate] = useState<boolean>(false);
   const [viewMode, setViewMode] = useState<"grid" | "table">("grid");
+  const [Delete, setDelete] = useState<boolean>(false);
 
   const getList = async (userId: string) => {
     setLoading(true);
@@ -41,6 +42,13 @@ export default function Page() {
     const data = await apiServices.getMailList(userId);
     setData(data);
     setLoading(false);
+  };
+
+  const deleteProject = async (code: string) => {
+    setDelete(true);
+    await apiServices.deleteProject(code, userData.id);
+    setDelete(false);
+    window.location.reload();
   };
 
   useEffect(() => {
@@ -95,6 +103,8 @@ export default function Page() {
               update={update}
               onTakeOver={TakeOver}
               setIsOpen={setIsOpen}
+              deleteProject={deleteProject}
+              deleteLoading={Delete}
             />
           ) : (
             <MailGrid
@@ -104,6 +114,8 @@ export default function Page() {
               update={update}
               onTakeOver={TakeOver}
               setIsOpen={setIsOpen}
+              deleteProject={deleteProject}
+              deleteLoading={Delete}
             />
           )}
           <Dialog open={isOpen} onOpenChange={setIsOpen}>
