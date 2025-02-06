@@ -67,6 +67,7 @@ export function CalendarManager() {
       newEvent.description &&
       newEvent.office
     ) {
+      console.log(newEvent);
       const newEventData = { ...newEvent, id: Date.now().toString() };
       const data = [...events, newEventData];
       setEvents(data);
@@ -156,6 +157,29 @@ export function CalendarManager() {
                     }
                     required
                   />
+                </div>
+                <div className="flex flex-col gap-2">
+                  <Label htmlFor="edit-description">發布處室</Label>
+                  <Select
+                    onValueChange={(e) => {
+                      setNewEvent({
+                        ...newEvent,
+                        office: e,
+                      });
+                    }}
+                    defaultValue={newEvent.office}
+                  >
+                    <SelectTrigger className="w-[180px]">
+                      <SelectValue placeholder="點擊這裡選擇" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {offices.map((office, index) => (
+                        <SelectItem value={office} key={index}>
+                          {office}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div>
                   <Label htmlFor="date">日期</Label>

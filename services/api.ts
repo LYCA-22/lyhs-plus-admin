@@ -250,6 +250,7 @@ export const apiServices = {
     title: string;
     description: string;
     date: string;
+    office: string;
   }) {
     try {
       const response = await fetch(`${API_BASE_URL}/event/add`, {
@@ -262,6 +263,7 @@ export const apiServices = {
           title: event.title,
           description: event.description,
           date: event.date,
+          office: event.office,
         }),
       });
 
@@ -277,6 +279,7 @@ export const apiServices = {
       throw error;
     }
   },
+
   async deleteProject(code: string, userId: string) {
     try {
       const response = await fetch(`${API_BASE_URL}/mail/project/delete`, {
