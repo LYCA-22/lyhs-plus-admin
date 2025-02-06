@@ -1,4 +1,5 @@
 import { logout } from "@/store/userSlice";
+import { Event } from "@/types";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
@@ -299,6 +300,58 @@ export const apiServices = {
     } catch (error) {
       console.error("Error in deleteProject:", error);
       throw error;
+    }
+  },
+  async updateEvent(event: Event) {
+    try {
+      const response = await fetch(`${API_BASE_URL}/event/update`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          id: event.id,
+          title: event.title,
+          description: event.description,
+          date: event.date,
+          office: event.office,
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        return data;
+      } else {
+        const result = await response.json();
+        throw new Error(result.error);
+      }
+    } catch (e) {
+      console.error("Error in updateEvent:", e);
+      throw e;
+    }
+  },
+  async deleteEvent(id: string) {
+    try {
+      const response = await fetch(`${API_BASE_URL}/event/delete`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          id: id,
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        return data;
+      } else {
+        const result = await response.json();
+        throw new Error(result.error);
+      }
+    } catch (e) {
+      console.error("Error in deleteEvent:", e);
+      throw e;
     }
   },
 };

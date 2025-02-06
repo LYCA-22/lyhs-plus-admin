@@ -57,3 +57,11 @@ export interface CalendarProps {
   onEventClick?: (event: CalendarEvent) => void;
   onDateClick?: (date: Date) => void;
 }
+
+export interface Event {
+  id: string;
+  title: string;
+  description: string;
+  date: string;
+  office: string;
+}

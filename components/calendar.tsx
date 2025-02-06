@@ -1,6 +1,5 @@
 "use client";
-
-import * as React from "react";
+import React, { useState, useEffect } from "react";
 import {
   addMonths,
   subMonths,
@@ -15,7 +14,6 @@ import {
   endOfWeek,
 } from "date-fns";
 import { ChevronLeft, ChevronRight, Plus, Trash2, Edit2 } from "lucide-react";
-
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -27,14 +25,17 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { apiServices } from "@/services/api";
+import { Event } from "@/types";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
-interface Event {
-  id: string;
-  title: string;
-  description: string;
-  date: string;
-}
-
+const offices = ["班聯會", "總務處", "校長室", "教務處", "學務處", "圖書館"];
 export function CalendarManager() {
   const [currentDate, setCurrentDate] = React.useState(new Date());
   const [events, setEvents] = React.useState<Event[]>([]);
@@ -42,10 +43,12 @@ export function CalendarManager() {
     title: "",
     description: "",
     date: "",
+    office: "",
   });
-  const [selectedEvent, setSelectedEvent] = React.useState<Event | null>(null);
-  const [isEditing, setIsEditing] = React.useState(false);
-  const [isOpen, setIsOpen] = React.useState(false);
+  const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
+  const [isEditing, setIsEditing] = useState<boolean>(false);
+  const [isOpen, setIsOpen] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
 
   const monthStart = startOfMonth(currentDate);
   const monthEnd = endOfMonth(currentDate);
@@ -58,24 +61,38 @@ export function CalendarManager() {
 
   const addEvent = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (newEvent.title && newEvent.date && newEvent.description) {
+    if (
+      newEvent.title &&
+      newEvent.date &&
+      newEvent.description &&
+      newEvent.office
+    ) {
       const newEventData = { ...newEvent, id: Date.now().toString() };
       const data = [...events, newEventData];
       setEvents(data);
-      setNewEvent({ title: "", description: "", date: "" });
+      setNewEvent({ title: "", description: "", date: "", office: "" });
+      setLoading(true);
       await apiServices.addEvent(newEventData);
       setIsOpen(false);
+      setLoading(false);
     }
   };
 
-  const deleteEvent = (id: string) => {
+  const deleteEvent = async (id: string) => {
+    setLoading(true);
+    await apiServices.deleteEvent(id);
+    setLoading(false);
     setEvents(events.filter((event) => event.id !== id));
     setSelectedEvent(null);
+    window.location.reload();
   };
 
-  const editEvent = (e: React.FormEvent) => {
+  const editEvent = async (e: React.FormEvent) => {
     e.preventDefault();
     if (selectedEvent && selectedEvent.title && selectedEvent.date) {
+      setLoading(true);
+      await apiServices.updateEvent(selectedEvent);
+      setLoading(false);
       setEvents(
         events.map((event) =>
           event.id === selectedEvent.id ? selectedEvent : event,
@@ -85,7 +102,7 @@ export function CalendarManager() {
     }
   };
 
-  React.useEffect(() => {
+  useEffect(() => {
     const GetEvents = async () => {
       const events = await apiServices.getAllEvent();
       setEvents(events.data.results);
@@ -215,7 +232,7 @@ export function CalendarManager() {
               </DialogTitle>
             </DialogHeader>
             {isEditing ? (
-              <form onSubmit={editEvent} className="space-y-4">
+              <form onSubmit={editEvent} className="space-y-4 relative">
                 <div>
                   <Label htmlFor="edit-title">標題</Label>
                   <Input
@@ -244,20 +261,50 @@ export function CalendarManager() {
                     required
                   />
                 </div>
-                <div>
-                  <Label htmlFor="edit-date">日期</Label>
-                  <Input
-                    id="edit-date"
-                    type="date"
-                    value={selectedEvent.date}
-                    onChange={(e) =>
+                <div className="flex flex-col gap-2">
+                  <Label htmlFor="edit-description">發布處室</Label>
+                  <Select
+                    onValueChange={(e) => {
                       setSelectedEvent({
                         ...selectedEvent,
-                        date: e.target.value,
-                      })
-                    }
-                    required
-                  />
+                        office: e,
+                      });
+                    }}
+                    defaultValue={selectedEvent.office}
+                  >
+                    <SelectTrigger className="w-[180px]">
+                      <SelectValue placeholder="點擊這裡選擇" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {offices.map((office, index) => (
+                        <SelectItem value={office} key={index}>
+                          {office}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="flex flex-col items-start gap-2">
+                  <Label htmlFor="edit-date">日期</Label>
+                  <div>
+                    <Calendar
+                      mode="single"
+                      selected={
+                        selectedEvent.date
+                          ? parseISO(selectedEvent.date)
+                          : undefined
+                      }
+                      onSelect={(newDate) => {
+                        if (newDate) {
+                          setSelectedEvent({
+                            ...selectedEvent,
+                            date: format(newDate, "yyyy-MM-dd"),
+                          });
+                        }
+                      }}
+                      className="rounded-md border"
+                    />
+                  </div>
                 </div>
                 <div className="flex justify-end space-x-2">
                   <Button
@@ -267,7 +314,9 @@ export function CalendarManager() {
                   >
                     取消
                   </Button>
-                  <Button type="submit">儲存</Button>
+                  <Button type="submit" disabled={loading}>
+                    儲存
+                  </Button>
                 </div>
               </form>
             ) : (
