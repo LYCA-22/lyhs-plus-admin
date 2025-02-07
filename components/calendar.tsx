@@ -13,7 +13,7 @@ import {
   startOfWeek,
   endOfWeek,
 } from "date-fns";
-import { ChevronLeft, ChevronRight, Plus, Trash2, Edit2 } from "lucide-react";
+import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -26,7 +26,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { apiServices } from "@/services/api";
 import { Event } from "@/types";
-import { Calendar } from "@/components/ui/calendar";
 import {
   Select,
   SelectContent,
@@ -34,8 +33,21 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { EventEdit } from "./eventEdit";
 
-const offices = ["班聯會", "總務處", "校長室", "教務處", "學務處", "圖書館"];
+interface OfficeItem {
+  color: string;
+  name: string;
+}
+
+const officesInfo: { [key: string]: OfficeItem } = {
+  lyca: { color: "#D3F0FF", name: "班聯會" },
+  equip: { color: "#98E2E0", name: "總務處" },
+  edu: { color: "#F1E3C6", name: "教務處" },
+  stu: { color: "#F5D7C4", name: "學務處" },
+  lib: { color: "#F0C2BD", name: "圖書館" },
+};
+
 export function CalendarManager() {
   const [currentDate, setCurrentDate] = React.useState(new Date());
   const [events, setEvents] = React.useState<Event[]>([]);
@@ -76,30 +88,6 @@ export function CalendarManager() {
       await apiServices.addEvent(newEventData);
       setIsOpen(false);
       setLoading(false);
-    }
-  };
-
-  const deleteEvent = async (id: string) => {
-    setLoading(true);
-    await apiServices.deleteEvent(id);
-    setLoading(false);
-    setEvents(events.filter((event) => event.id !== id));
-    setSelectedEvent(null);
-    window.location.reload();
-  };
-
-  const editEvent = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (selectedEvent && selectedEvent.title && selectedEvent.date) {
-      setLoading(true);
-      await apiServices.updateEvent(selectedEvent);
-      setLoading(false);
-      setEvents(
-        events.map((event) =>
-          event.id === selectedEvent.id ? selectedEvent : event,
-        ),
-      );
-      setIsEditing(false);
     }
   };
 
@@ -173,9 +161,9 @@ export function CalendarManager() {
                       <SelectValue placeholder="點擊這裡選擇" />
                     </SelectTrigger>
                     <SelectContent>
-                      {offices.map((office, index) => (
-                        <SelectItem value={office} key={index}>
-                          {office}
+                      {Object.keys(officesInfo).map((key) => (
+                        <SelectItem value={key} key={key}>
+                          {officesInfo[key].name}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -224,7 +212,10 @@ export function CalendarManager() {
               .map((event) => (
                 <div
                   key={event.id}
-                  className="bg-blue-200 dark:bg-blue-700 p-1 px-2 font-medium rounded-md mt-4 text-xs flex justify-between items-center"
+                  className="p-1 px-2 font-medium rounded-md mt-4 text-xs flex justify-between items-center"
+                  style={{
+                    backgroundColor: officesInfo[event.office]?.color,
+                  }}
                 >
                   <span
                     className="cursor-pointer flex-grow"
@@ -240,133 +231,17 @@ export function CalendarManager() {
           </div>
         ))}
       </div>
-
-      {selectedEvent && (
-        <Dialog
-          open={!!selectedEvent}
-          onOpenChange={() => {
-            setSelectedEvent(null);
-            setIsEditing(false);
-          }}
-        >
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>
-                {isEditing ? "編輯事件" : selectedEvent.title}
-              </DialogTitle>
-            </DialogHeader>
-            {isEditing ? (
-              <form onSubmit={editEvent} className="space-y-4 relative">
-                <div>
-                  <Label htmlFor="edit-title">標題</Label>
-                  <Input
-                    id="edit-title"
-                    value={selectedEvent.title}
-                    onChange={(e) =>
-                      setSelectedEvent({
-                        ...selectedEvent,
-                        title: e.target.value,
-                      })
-                    }
-                    required
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="edit-description">說明</Label>
-                  <Input
-                    id="edit-description"
-                    value={selectedEvent.description}
-                    onChange={(e) =>
-                      setSelectedEvent({
-                        ...selectedEvent,
-                        description: e.target.value,
-                      })
-                    }
-                    required
-                  />
-                </div>
-                <div className="flex flex-col gap-2">
-                  <Label htmlFor="edit-description">發布處室</Label>
-                  <Select
-                    onValueChange={(e) => {
-                      setSelectedEvent({
-                        ...selectedEvent,
-                        office: e,
-                      });
-                    }}
-                    defaultValue={selectedEvent.office}
-                  >
-                    <SelectTrigger className="w-[180px]">
-                      <SelectValue placeholder="點擊這裡選擇" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {offices.map((office, index) => (
-                        <SelectItem value={office} key={index}>
-                          {office}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="flex flex-col items-start gap-2">
-                  <Label htmlFor="edit-date">日期</Label>
-                  <div>
-                    <Calendar
-                      mode="single"
-                      selected={
-                        selectedEvent.date
-                          ? parseISO(selectedEvent.date)
-                          : undefined
-                      }
-                      onSelect={(newDate) => {
-                        if (newDate) {
-                          setSelectedEvent({
-                            ...selectedEvent,
-                            date: format(newDate, "yyyy-MM-dd"),
-                          });
-                        }
-                      }}
-                      className="rounded-md border"
-                    />
-                  </div>
-                </div>
-                <div className="flex justify-end space-x-2">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => setIsEditing(false)}
-                  >
-                    取消
-                  </Button>
-                  <Button type="submit" disabled={loading}>
-                    儲存
-                  </Button>
-                </div>
-              </form>
-            ) : (
-              <div className="text-sm">
-                <p>
-                  說明：{selectedEvent.description || "No description provided"}
-                </p>
-                <p>
-                  日期：{format(parseISO(selectedEvent.date), "MMMM d, yyyy")}
-                </p>
-                <div className="flex justify-end space-x-2 mt-4">
-                  <Button variant="outline" onClick={() => setIsEditing(true)}>
-                    <Edit2 className="mr-2 h-4 w-4" /> 編輯
-                  </Button>
-                  <Button
-                    variant="destructive"
-                    onClick={() => deleteEvent(selectedEvent.id)}
-                  >
-                    <Trash2 className="mr-2 h-4 w-4" /> 刪除
-                  </Button>
-                </div>
-              </div>
-            )}
-          </DialogContent>
-        </Dialog>
-      )}
+      <EventEdit
+        selectedEvent={selectedEvent}
+        setSelectedEvent={setSelectedEvent}
+        officesInfo={officesInfo}
+        setEvents={setEvents}
+        events={events}
+        setIsEditing={setIsEditing}
+        isEditing={isEditing}
+        loading={loading}
+        setLoading={setLoading}
+      />
     </div>
   );
 }
