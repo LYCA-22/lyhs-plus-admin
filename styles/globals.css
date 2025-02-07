@@ -12,6 +12,11 @@
     --dvh: 100dvh;
     --borderColor: #cecece;
     --buttonBg: #e0e0e0;
+    --office-lyca-color: #d3f0ff;
+    --office-equip-color: #98e2e0;
+    --office-edu-color: #f1e3c6;
+    --office-stu-color: #f5d7c4;
+    --office-lib-color: #f0c2bd;
     overflow: hidden;
 }
 
@@ -22,10 +27,24 @@
     --hoverbg: #343436;
     --borderColor: #5e5d5d;
     --buttonBg: #1e1e20;
+    --office-lyca-color: #004466;
+    --office-equip-color: #12413f;
+    --office-edu-color: #4e3a13;
+    --office-stu-color: #53280e;
+    --office-lib-color: #4d1711;
 }
 
 body {
     background-color: var(--background);
+}
+
+@font-face {
+    font-family: "OpenAI Sans";
+    src:
+        url("/fonts/OpenAISans-Regular.woff2") format("woff2"),
+        url("/fonts/OpenAISans-Medium.woff2") format("woff2");
+    font-weight: 400 500;
+    font-style: normal;
 }
 
 @layer base {

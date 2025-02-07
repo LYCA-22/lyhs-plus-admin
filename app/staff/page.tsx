@@ -165,7 +165,7 @@ export default function Page() {
                     </p>
                   </div>
                   <input
-                    className="bg-background border rounded-md p-2 text-end max-w-[100px] transition-all focus:outline-none focus:ring-2 focus:ring-primary"
+                    className="bg-background border rounded-md p-2 text-end max-w-[100px] transition-all focus:outline-none focus:ring-2 focus:ring-primary dark:bg-zinc-800 dark:border-zinc-700"
                     type="text"
                     value={level}
                     onChange={(e) => setLevel(e.target.value)}
