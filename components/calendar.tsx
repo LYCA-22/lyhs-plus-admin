@@ -221,6 +221,21 @@ export function CalendarManager() {
         </div>
       </div>
 
+      <div className="w-full items-center font-medium my-2 bg-background box-border rounded-xl p-3 flex px-4 border border-border overflow-x-auto mt-5">
+        <div className="flex gap-3">
+          <p className="opacity-50 min-w-fit max-sm:hidden">顏色指示</p>
+          {Object.keys(officesInfo).map((key) => (
+            <div key={key} className="flex items-center gap-2 min-w-fit">
+              <div
+                className="w-3 h-3 rounded-full"
+                style={{ backgroundColor: officesInfo[key].color }}
+              ></div>
+              <p>{officesInfo[key].name}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+
       <div className="bg-background dark:bg-zinc-900 rounded-xl overflow-auto mt-5 border font-custom">
         <div className="grid grid-cols-7 overflow-clip border-border min-w-[600px]">
           {[
@@ -258,7 +273,7 @@ export function CalendarManager() {
                 .map((event) => (
                   <div
                     key={event.id}
-                    className="p-1 px-2  cursor-pointer font-medium rounded-full overflow-x-auto my-2 relative text-xs flex justify-between items-center"
+                    className="p-1 px-2  cursor-pointer font-medium rounded-full overflow-hidden my-2 relative text-xs flex justify-between items-center"
                     style={{
                       backgroundColor: officesInfo[event.office]?.color,
                     }}
