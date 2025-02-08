@@ -180,7 +180,7 @@ export function Header() {
           {ITEMS.map((item) => (
             <button
               key={item.id}
-              className={`py-3 relative duration-300 transition-colors ${pathname === item.link ? "text-foreground" : "text-zinc-400"}`}
+              className={`py-3 relative min-w-fit duration-300 transition-colors ${pathname === item.link ? "text-foreground" : "text-zinc-400"}`}
               onMouseEnter={() => setIsHover(item)}
               onMouseLeave={() => setIsHover(null)}
             >

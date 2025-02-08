@@ -211,9 +211,11 @@ export function EventEdit({
               </Button>
               <Button
                 variant="destructive"
+                disabled={loading}
                 onClick={() => deleteEvent(selectedEvent?.id || "")}
               >
-                <Trash2 className="mr-2 h-4 w-4" /> 刪除
+                <Trash2 className="mr-2 h-4 w-4" />
+                {loading ? "刪除中..." : "刪除"}
               </Button>
             </div>
           </div>

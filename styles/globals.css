@@ -13,10 +13,11 @@
     --borderColor: #cecece;
     --buttonBg: #e0e0e0;
     --office-lyca-color: #d3f0ff;
-    --office-equip-color: #98e2e0;
+    --office-equip-color: #c9caf8;
     --office-edu-color: #f1e3c6;
-    --office-stu-color: #f5d7c4;
+    --office-stu-color: #cfe9e7;
     --office-lib-color: #f0c2bd;
+    --office-coun-color: #f7bbff;
     overflow: hidden;
 }
 
@@ -28,10 +29,11 @@
     --borderColor: #5e5d5d;
     --buttonBg: #1e1e20;
     --office-lyca-color: #004466;
-    --office-equip-color: #12413f;
+    --office-equip-color: #252665;
     --office-edu-color: #4e3a13;
-    --office-stu-color: #53280e;
+    --office-stu-color: #234b48;
     --office-lib-color: #4d1711;
+    --office-coun-color: #560062;
 }
 
 body {

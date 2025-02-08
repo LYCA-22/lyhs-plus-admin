@@ -45,6 +45,7 @@ const officesInfo: { [key: string]: OfficeItem } = {
   edu: { color: "var(--office-edu-color)", name: "教務處" },
   stu: { color: "var(--office-stu-color)", name: "學務處" },
   lib: { color: "var(--office-lib-color)", name: "圖書館" },
+  coun: { color: "var(--office-coun-color)", name: "輔導處" },
 };
 
 export function CalendarManager() {
@@ -119,9 +120,9 @@ export function CalendarManager() {
           </button>
           <Dialog onOpenChange={setIsOpen} open={isOpen}>
             <DialogTrigger asChild>
-              <button className="flex items-center gap-2 bg-foreground text-background rounded-full p-2 px-3 font-sans font-medium text-[14px] hover:opacity-80">
-                <Plus className="h-4 w-4" />
-                新增事件
+              <button className="flex items-center justify-center gap-2 bg-foreground text-background rounded-full sm:p-2 sm:px-3 max-sm:h-9 max-sm:w-9 font-sans font-medium text-[14px] hover:opacity-80">
+                <Plus className="h-4 w-4 max-sm:h-5 max-sm:w-5" />
+                <p className="max-sm:hidden">新增事件</p>
               </button>
             </DialogTrigger>
             <DialogContent>
@@ -138,7 +139,7 @@ export function CalendarManager() {
                     <p className="text-sm opacity-60">事件的主旨</p>
                   </div>
                   <input
-                    className="bg-background border rounded-md p-2 text-end min-w-[300px] transition-all focus:outline-none focus:ring-2 focus:ring-primary dark:bg-zinc-800 dark:border-zinc-700"
+                    className="bg-background border rounded-md p-2 text-end min-w-[300px] max-sm:min-w-[100px] transition-all focus:outline-none focus:ring-2 focus:ring-primary dark:bg-zinc-800 dark:border-zinc-700"
                     type="text"
                     required
                     value={newEvent.title}
@@ -153,7 +154,7 @@ export function CalendarManager() {
                     <p className="text-sm opacity-60">事件的詳細內容</p>
                   </div>
                   <input
-                    className="bg-background border rounded-md p-2 text-end min-w-[300px] transition-all focus:outline-none focus:ring-2 focus:ring-primary dark:bg-zinc-800 dark:border-zinc-700"
+                    className="bg-background border rounded-md p-2 text-end min-w-[300px] max-sm:min-w-[100px] transition-all focus:outline-none focus:ring-2 focus:ring-primary dark:bg-zinc-800 dark:border-zinc-700"
                     type="text"
                     required
                     value={newEvent.description}
@@ -211,8 +212,8 @@ export function CalendarManager() {
                     }
                   />
                 </div>
-                <Button type="submit" className="w-full">
-                  新增
+                <Button type="submit" className="w-full" disabled={loading}>
+                  {loading ? "新增中..." : "新增"}
                 </Button>
               </form>
             </DialogContent>
@@ -257,20 +258,26 @@ export function CalendarManager() {
                 .map((event) => (
                   <div
                     key={event.id}
-                    className="p-1 px-2 font-medium rounded-[10px] my-2 text-xs flex justify-between items-center"
+                    className="p-1 px-2  cursor-pointer font-medium rounded-full overflow-x-auto my-2 relative text-xs flex justify-between items-center"
                     style={{
                       backgroundColor: officesInfo[event.office]?.color,
                     }}
+                    onClick={() => {
+                      setSelectedEvent(event);
+                      setIsEditing(false);
+                    }}
                   >
-                    <span
-                      className="cursor-pointer flex-grow"
-                      onClick={() => {
-                        setSelectedEvent(event);
-                        setIsEditing(false);
+                    <div className="min-w-fit">
+                      <p className="whitespace-nowrap max-sm:text-[12px] scroll-smooth">
+                        {event.title}
+                      </p>
+                    </div>
+                    <div
+                      className="w-10 absolute right-0 h-full"
+                      style={{
+                        background: `linear-gradient(to right, #ff7e5f00, ${officesInfo[event.office]?.color})`,
                       }}
-                    >
-                      {event.title}
-                    </span>
+                    ></div>
                   </div>
                 ))}
             </div>
