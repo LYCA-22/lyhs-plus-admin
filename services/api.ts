@@ -15,6 +15,7 @@ export const apiServices = {
 
       if (!response.ok) {
         const result = await response.json();
+        document.cookie = "sessionId=; path=/; domain=lyhsca.org;";
         window.location.href =
           "https://auth.lyhsca.org/account/login?redirect_url=https://admin.lyhsca.org";
         throw Error(result.error);
