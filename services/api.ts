@@ -7,7 +7,7 @@ export const apiServices = {
   async getUserData(sessionId: string) {
     try {
       const response = await fetch(`${API_BASE_URL}/v1/user/data`, {
-        method: "POST",
+        method: "GET",
         headers: {
           Authorization: `Bearer ${sessionId}`,
         },
@@ -20,8 +20,8 @@ export const apiServices = {
           "https://auth.lyhsca.org/account/login?redirect_url=https://admin.lyhsca.org";
         throw Error(result.error);
       }
-      const data = await response.json();
-      return data;
+      const result = await response.json();
+      return result.data;
     } catch (e) {
       console.error("Failed to get user data:", e);
       throw Error("Failed to get user data");
@@ -29,7 +29,7 @@ export const apiServices = {
   },
   async getBackendStatus() {
     try {
-      const response = await fetch(`${API_BASE_URL}/status`, {
+      const response = await fetch(`${API_BASE_URL}/v1/status`, {
         method: "GET",
       });
 
