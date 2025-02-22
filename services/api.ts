@@ -6,8 +6,8 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 export const apiServices = {
   async getUserData(sessionId: string) {
     try {
-      const response = await fetch(`${API_BASE_URL}/auth/verity`, {
-        method: "GET",
+      const response = await fetch(`${API_BASE_URL}/user/data`, {
+        method: "POST",
         headers: {
           Authorization: `Bearer ${sessionId}`,
         },
