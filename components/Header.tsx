@@ -208,7 +208,7 @@ export function Header() {
           ))}
         </div>
       </div>
-      <Dialog open={!dialogOpen}>
+      <Dialog open={dialogOpen}>
         <DialogContent closeBtn={false}>
           <DialogHeader className="space-y-3 mt-1">
             <DialogTitle>您的權限不足。</DialogTitle>
