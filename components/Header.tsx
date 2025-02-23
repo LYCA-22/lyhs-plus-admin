@@ -189,6 +189,7 @@ export function Header() {
                 {isHover?.id === item.id && (
                   <motion.div
                     layoutId="hover-bg"
+                    transition={{ duration: 0.1, ease: "easeInOut" }}
                     className="absolute bottom-0 left-0 right-0 w-full h-full bg-zinc-200/40 dark:bg-zinc-50/10"
                     style={{
                       borderRadius: 6,
@@ -199,6 +200,7 @@ export function Header() {
               {pathname === item.link && (
                 <motion.div
                   layoutId="active"
+                  transition={{ duration: 0.2 }}
                   className="absolute bottom-0 left-0 right-0 w-full h-0.5 bg-foreground"
                 />
               )}
@@ -206,8 +208,8 @@ export function Header() {
           ))}
         </div>
       </div>
-      <Dialog open={dialogOpen}>
-        <DialogContent>
+      <Dialog open={!dialogOpen}>
+        <DialogContent closeBtn={false}>
           <DialogHeader className="space-y-3 mt-1">
             <DialogTitle>您的權限不足。</DialogTitle>
             <DialogDescription>
