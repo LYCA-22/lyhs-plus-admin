@@ -46,7 +46,7 @@ export const apiServices = {
   },
   async Logout(sessionId: string, email: string) {
     try {
-      const response = await fetch(`${API_BASE_URL}/auth/logout`, {
+      const response = await fetch(`${API_BASE_URL}/v1/auth/logout`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -155,17 +155,20 @@ export const apiServices = {
   ) {
     setCreateCodeStatus(true);
     try {
-      const response = await fetch(`${API_BASE_URL}/auth/createCode`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${sessionId}`,
+      const response = await fetch(
+        `${API_BASE_URL}/v1/user/staff/code/create`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${sessionId}`,
+          },
+          body: JSON.stringify({
+            vuli: vuli,
+            level: level,
+          }),
         },
-        body: JSON.stringify({
-          vuli: vuli,
-          level: level,
-        }),
-      });
+      );
 
       if (response.ok) {
         const data = await response.json();
@@ -184,8 +187,8 @@ export const apiServices = {
   },
   async getAllCodeData(sessionId: string) {
     try {
-      const response = await fetch(`${API_BASE_URL}/auth/getAllCode`, {
-        method: "POST",
+      const response = await fetch(`${API_BASE_URL}/v1/user/staff/code/list`, {
+        method: "GET",
         headers: {
           Authorization: `Bearer ${sessionId}`,
         },
