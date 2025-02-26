@@ -71,16 +71,14 @@ export const apiServices = {
       throw error;
     }
   },
-  async getMailList(userId: string) {
+  async getMailList(sessionId: string) {
     try {
-      const response = await fetch(`${API_BASE_URL}/mail/project/list`, {
-        method: "POST",
+      const response = await fetch(`${API_BASE_URL}/v1/lyps/srm/list`, {
+        method: "GET",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${sessionId}`,
         },
-        body: JSON.stringify({
-          userId: userId,
-        }),
       });
 
       if (response.ok) {

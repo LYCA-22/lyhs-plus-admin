@@ -33,13 +33,13 @@ export default function Page() {
   const [viewMode, setViewMode] = useState<"grid" | "table">("grid");
   const [Delete, setDelete] = useState<boolean>(false);
 
-  const getList = async (userId: string) => {
+  const getList = async (sessionId: string) => {
     setLoading(true);
-    if (!userId) {
+    if (!sessionId) {
       setLoading(false);
       return;
     }
-    const data = await apiServices.getMailList(userId);
+    const data = await apiServices.getMailList(sessionId);
     setData(data);
     setLoading(false);
   };
@@ -56,7 +56,7 @@ export default function Page() {
       (!systemLoading && userData.level === "L3") ||
       (userData.level === "A1" && userData.type === "staff")
     ) {
-      getList(userData.id);
+      getList(userData.sessionId);
     } else {
       setLoading(false);
     }
