@@ -121,16 +121,16 @@ export const apiServices = {
   },
   async getMailDetail(code: string, userId: string) {
     try {
-      const response = await fetch(`${API_BASE_URL}/mail/project/detail`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+      const response = await fetch(
+        `${API_BASE_URL}/mail/project/detail?code=${code}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${userId}`,
+          },
         },
-        body: JSON.stringify({
-          code: code,
-          userId: userId,
-        }),
-      });
+      );
 
       if (response.ok) {
         const data = await response.json();
