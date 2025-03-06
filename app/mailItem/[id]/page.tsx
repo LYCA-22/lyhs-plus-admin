@@ -27,7 +27,7 @@ export default function MailItemPage() {
   const params = useParams();
   const id = params.id as string;
   const code = useSearchParams().get("code") as string;
-  const userId = useAppSelector((state) => state.userData.id);
+  const sessionId = useAppSelector((state) => state.userData.sessionId);
   const userData = useAppSelector((state) => state.userData);
   const isLoaded = useAppSelector((state) => state.systemStatus.isLoading);
   const [data, setData] = useState<MailItem | null>(null);
@@ -61,7 +61,7 @@ export default function MailItemPage() {
     const getMailItem = async () => {
       try {
         setLoading(true);
-        const data = await apiServices.getMailDetail(code, userId);
+        const data = await apiServices.getMailDetail(code, sessionId);
         setData(data);
         setStatus(data.status);
       } catch (e) {
@@ -74,7 +74,7 @@ export default function MailItemPage() {
     if (!isLoaded) {
       getMailItem();
     }
-  }, [code, userId, isLoaded]);
+  }, [code, sessionId, isLoaded]);
 
   useEffect(() => {
     if (!loading && data) {

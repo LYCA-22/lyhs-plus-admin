@@ -119,7 +119,7 @@ export const apiServices = {
       throw error;
     }
   },
-  async getMailDetail(code: string, userId: string) {
+  async getMailDetail(code: string, sessionId: string) {
     try {
       const response = await fetch(
         `${API_BASE_URL}/v1/lyps/srm/detail?code=${code}`,
@@ -127,7 +127,7 @@ export const apiServices = {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${userId}`,
+            Authorization: `Bearer ${sessionId}`,
           },
         },
       );
