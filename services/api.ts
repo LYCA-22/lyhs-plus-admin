@@ -124,7 +124,7 @@ export const apiServices = {
       const response = await fetch(
         `${API_BASE_URL}/mail/project/detail?code=${code}`,
         {
-          method: "POST",
+          method: "GET",
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${userId}`,
@@ -134,7 +134,7 @@ export const apiServices = {
 
       if (response.ok) {
         const data = await response.json();
-        return data;
+        return data.data;
       } else {
         const result = await response.json();
         throw new Error(result.error);
