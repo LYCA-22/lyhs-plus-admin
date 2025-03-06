@@ -122,7 +122,7 @@ export const apiServices = {
   async getMailDetail(code: string, userId: string) {
     try {
       const response = await fetch(
-        `${API_BASE_URL}/mail/project/detail?code=${code}`,
+        `${API_BASE_URL}/v1/lyps/srm/detail?code=${code}`,
         {
           method: "GET",
           headers: {
