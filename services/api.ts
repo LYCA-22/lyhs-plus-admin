@@ -132,7 +132,7 @@ export const apiServices = {
 
       if (response.ok) {
         const data = await response.json();
-        return data.data;
+        return data;
       } else {
         const result = await response.json();
         throw new Error(result.error);
