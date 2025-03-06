@@ -6,7 +6,7 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 export const apiServices = {
   async getUserData(sessionId: string) {
     try {
-      const response = await fetch(`${API_BASE_URL}/v1/user/data`, {
+      const response = await fetch(`${API_BASE_URL}/v1/user/me`, {
         method: "GET",
         headers: {
           Authorization: `Bearer ${sessionId}`,
