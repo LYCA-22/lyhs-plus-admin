@@ -46,15 +46,13 @@ export const apiServices = {
   },
   async Logout(sessionId: string, email: string) {
     try {
+      console.log(email);
       const response = await fetch(`${API_BASE_URL}/v1/auth/logout`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${sessionId}`,
         },
-        body: JSON.stringify({
-          email: email,
-          sessionId: sessionId,
-        }),
       });
 
       if (response.ok) {
