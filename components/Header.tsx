@@ -21,9 +21,15 @@ import {
 } from "@/components/ui/dialog";
 import { useAppSelector } from "@/store/hook";
 import { apiServices } from "@/services/api";
-import { motion } from "framer-motion";
 import Link from "next/link";
-import { SquareArrowOutUpRight, LogOut, UserPen } from "lucide-react";
+import { LogOut, UserPen } from "lucide-react";
+import {
+  House,
+  EnvelopeSimple,
+  EnvelopeSimpleOpen,
+  UserFocus,
+  CalendarDots,
+} from "@phosphor-icons/react";
 
 const gradientPresets = [
   "from-blue-500 via-purple-500 to-pink-500",
@@ -39,17 +45,42 @@ type Props = {
   id: number;
   tile: string;
   link: string;
+  icon: React.ReactNode;
+  "active-icon": React.ReactNode;
 };
 
 const ITEMS: Props[] = [
-  { id: 1, tile: "總覽", link: "/" },
-  { id: 2, tile: "學權信箱", link: "/mailList" },
-  { id: 3, tile: "註冊代碼管理", link: "/staff" },
-  { id: 4, tile: "行事曆", link: "/calendar" },
+  {
+    id: 1,
+    tile: "總覽",
+    link: "/",
+    icon: <House size={23} />,
+    "active-icon": <House size={23} weight="fill" />,
+  },
+  {
+    id: 2,
+    tile: "學權信箱",
+    link: "/mailList",
+    icon: <EnvelopeSimple size={23} />,
+    "active-icon": <EnvelopeSimpleOpen size={23} weight="fill" />,
+  },
+  {
+    id: 3,
+    tile: "註冊代碼管理",
+    link: "/staff",
+    icon: <UserFocus size={23} />,
+    "active-icon": <UserFocus size={23} weight="fill" />,
+  },
+  {
+    id: 4,
+    tile: "行事曆",
+    link: "/calendar",
+    icon: <CalendarDots size={23} />,
+    "active-icon": <CalendarDots size={23} weight="fill" />,
+  },
 ];
 
 export function Header() {
-  const [isHover, setIsHover] = useState<Props | null>(null);
   const [theme, setTheme] = useState("");
   const [mounted, setMounted] = useState(false);
   const [gradient] = useState(
@@ -102,111 +133,81 @@ export function Header() {
   }
 
   return (
-    <header className="p-5 pt-3 pb-0 border-b border-border">
+    <header className="p-3 border-r border-border flex flex-col justify-between items-center py-5 dark:bg-zinc-900">
       <SystemCheck />
-      <div className="flex items-center justify-between">
-        <div aria-label="header-part-one" className="flex gap-2 items-center">
+      <div className="flex flex-col justify-between">
+        <div
+          aria-label="header-part-one"
+          className="flex flex-col gap-2 justify-center"
+        >
           <Image
             alt="lyhs-plus-logo"
             src={`${theme === "dark" ? "/logo-light.svg" : "/logo.svg"}`}
             height={40}
             width={40}
           />
-          <div className="p-1 px-2 font-medium text-[16px]">
-            LYHS Plus 管理中心
-          </div>
-        </div>
-        <div aria-label="header-part-two" className="flex justify-center gap-2">
-          <div className="flex gap-2 max-sm:hidden">
-            <a
-              href="https://dev.plus.lyhsca.org"
-              className="text-sm p-1 text-zinc-500 justify-center items-center hover:text-foreground flex gap-1"
-            >
-              APP
-              <SquareArrowOutUpRight size={12} />
-            </a>
-            <a
-              href="https://dev.plus.lyhsca.org"
-              className="text-sm flex p-1 text-zinc-500 justify-center items-center hover:text-foreground"
-            >
-              Feedback
-            </a>
-          </div>
-          <DropdownMenu>
-            <DropdownMenuTrigger>
-              <div
-                className={`
-                    inset-0
-                    bg-gradient-to-r ${gradient}
-                    opacity-80 group-hover:opacity-100
-                    transition-opacity
-                    h-8 w-8 rounded-full ml-1
-                  `}
-              />
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="mr-5">
-              <DropdownMenuLabel className="text-[14px] pb-0 pr-4">
-                {userData.name}
-              </DropdownMenuLabel>
-              <DropdownMenuLabel className="text-[14px] opacity-50 pt-0 font-normal pr-4">
-                {userData.email}
-              </DropdownMenuLabel>
-              <DropdownMenuItem className="mt-1 justify-between cursor-pointer">
-                帳號設定
-                <UserPen size={15} />
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <div className="flex justify-between items-center text-sm pl-3">
-                <p className="opacity-70">主題</p>
-                <ThemeToggle />
-              </div>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem className="mt-1 cursor-pointer">
-                LYHS+ 形象網站
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={userLogout}
-                className="justify-between mt-1 cursor-pointer"
-              >
-                登出
-                <LogOut size={15} />
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
         </div>
       </div>
       <div aria-label="navbar" className="mt-2">
-        <div className="flex overflow-x-auto">
+        <div className="flex overflow-x-auto flex-col gap-4">
           {ITEMS.map((item) => (
             <button
               key={item.id}
-              className={`py-3 relative min-w-fit duration-300 transition-colors ${pathname === item.link ? "text-foreground" : "text-zinc-400"}`}
-              onMouseEnter={() => setIsHover(item)}
-              onMouseLeave={() => setIsHover(null)}
+              className={`relative transition-all hover:bg-hoverbg hover:text-primary flex items-center rounded-[10px] justify-center active:scale-95 ${pathname === item.link ? "bg-primary text-background" : ""}`}
             >
-              <Link className="px-4 py-2 relative text-[15px]" href={item.link}>
-                {item.tile}
-                {isHover?.id === item.id && (
-                  <motion.div
-                    layoutId="hover-bg"
-                    transition={{ duration: 0.1, ease: "easeInOut" }}
-                    className="absolute bottom-0 left-0 right-0 w-full h-full bg-zinc-200/40 dark:bg-zinc-50/10"
-                    style={{
-                      borderRadius: 6,
-                    }}
-                  />
+              <Link className="relative p-[10px]" href={item.link}>
+                {pathname === item.link ? (
+                  <>{item["active-icon"]}</>
+                ) : (
+                  <>{item.icon}</>
                 )}
               </Link>
-              {pathname === item.link && (
-                <motion.div
-                  layoutId="active"
-                  transition={{ duration: 0.2 }}
-                  className="absolute bottom-0 left-0 right-0 w-full h-0.5 bg-foreground"
-                />
-              )}
             </button>
           ))}
         </div>
+      </div>
+      <div aria-label="header-part-two" className="flex flex-col gap-2">
+        <DropdownMenu>
+          <DropdownMenuTrigger>
+            <div
+              className={`
+                  inset-0
+                  bg-gradient-to-r ${gradient}
+                  opacity-80 group-hover:opacity-100
+                  transition-opacity
+                  h-8 w-8 rounded-full ml-1
+                `}
+            />
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="ml-5">
+            <DropdownMenuLabel className="text-[14px] pb-0 pr-4">
+              {userData.name}
+            </DropdownMenuLabel>
+            <DropdownMenuLabel className="text-[14px] opacity-50 pt-0 font-normal pr-4">
+              {userData.email}
+            </DropdownMenuLabel>
+            <DropdownMenuItem className="mt-1 justify-between cursor-pointer">
+              帳號設定
+              <UserPen size={15} />
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <div className="flex justify-between items-center text-sm pl-3">
+              <p className="opacity-70">主題</p>
+              <ThemeToggle />
+            </div>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem className="mt-1 cursor-pointer">
+              LYHS+ 形象網站
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={userLogout}
+              className="justify-between mt-1 cursor-pointer"
+            >
+              登出
+              <LogOut size={15} />
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
       <Dialog open={dialogOpen}>
         <DialogContent closeBtn={false}>

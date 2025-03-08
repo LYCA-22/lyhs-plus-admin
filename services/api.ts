@@ -93,8 +93,8 @@ export const apiServices = {
   },
   async updateMail(code: string, userName: string, status: string) {
     try {
-      const response = await fetch(`${API_BASE_URL}/mail/project/update`, {
-        method: "POST",
+      const response = await fetch(`${API_BASE_URL}/v1/lyps/srm/update`, {
+        method: "PUT",
         headers: {
           "Content-Type": "application/json",
         },
@@ -229,7 +229,7 @@ export const apiServices = {
   },
   async getAllEvent() {
     try {
-      const response = await fetch(`${API_BASE_URL}/event/all`, {
+      const response = await fetch(`${API_BASE_URL}/v1/cal/events`, {
         method: "GET",
       });
 
@@ -253,7 +253,7 @@ export const apiServices = {
     office: string;
   }) {
     try {
-      const response = await fetch(`${API_BASE_URL}/event/add`, {
+      const response = await fetch(`${API_BASE_URL}/v1/cal/event`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -280,18 +280,18 @@ export const apiServices = {
     }
   },
 
-  async deleteProject(code: string, userId: string) {
+  async deleteProject(code: string, sessionId: string) {
     try {
-      const response = await fetch(`${API_BASE_URL}/mail/project/delete`, {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
+      const response = await fetch(
+        `${API_BASE_URL}/v1/lyps/srm/delete?code=${code}`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${sessionId}`,
+          },
         },
-        body: JSON.stringify({
-          code: code,
-          userId: userId,
-        }),
-      });
+      );
 
       if (response.ok) {
         const data = await response.json();
@@ -354,6 +354,28 @@ export const apiServices = {
       }
     } catch (e) {
       console.error("Error in deleteEvent:", e);
+      throw e;
+    }
+  },
+  async getAccountTotal(sessionId: string) {
+    try {
+      const response = await fetch(`${API_BASE_URL}/v1/admin/account/total`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${sessionId}`,
+        },
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        return result.data["COUNT(*)"];
+      } else {
+        const result = await response.json();
+        throw new Error(result.error);
+      }
+    } catch (e) {
+      console.error("Error in getAccountTotal:", e);
       throw e;
     }
   },

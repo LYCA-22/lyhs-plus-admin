@@ -46,7 +46,7 @@ export default function Page() {
 
   const deleteProject = async (code: string) => {
     setDelete(true);
-    await apiServices.deleteProject(code, userData.id);
+    await apiServices.deleteProject(code, userData.sessionId);
     setDelete(false);
     window.location.reload();
   };

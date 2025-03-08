@@ -4,13 +4,18 @@ import { useEffect, useState } from "react";
 import { Loader } from "@/components/ui/loader";
 import { RotateCw } from "lucide-react";
 import { BackendStatus } from "@/types";
+import { useAppSelector } from "@/store/hook";
+import Link from "next/link";
+import { UserList } from "@phosphor-icons/react";
 
 export default function Page() {
   const [status, setStatus] = useState<BackendStatus | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [accountCount, setAccountCount] = useState<number>(0);
+  const userData = useAppSelector((state) => state.userData);
 
-  const getBackendStatus = async () => {
+  const getBackendData = async () => {
     setLoading(true);
     setError(null);
     try {
@@ -25,11 +30,20 @@ export default function Page() {
   };
 
   useEffect(() => {
-    getBackendStatus();
+    getBackendData();
   }, []);
 
+  useEffect(() => {
+    const getAccountCount = async () => {
+      const count = await apiServices.getAccountTotal(userData.sessionId);
+      setAccountCount(count);
+    };
+
+    getAccountCount();
+  }, [userData.sessionId]);
+
   const handleRefresh = () => {
-    getBackendStatus();
+    getBackendData();
   };
 
   const getStatusColor = (status: string) => {
@@ -67,10 +81,11 @@ export default function Page() {
     data: BackendStatus | null;
     title: string;
   }) => (
-    <div className="bg-white dark:bg-zinc-900 rounded-xl p-5 border-border border shadow-sm flex flex-col gap-3 transition-all">
+    <div className="bg-white dark:bg-zinc-900 rounded-2xl p-5 border-border border shadow-sm flex flex-col gap-3 transition-all">
       {loading ? (
-        <div className="flex items-center justify-center p-5">
+        <div className="flex items-center justify-center p-5 flex-col gap-5 font-bold">
           <Loader />
+          檢測中
         </div>
       ) : error ? (
         <div className="flex items-center justify-center p-5 text-destructive">
@@ -81,7 +96,7 @@ export default function Page() {
           <div>
             <h1 className="text-lg font-bold">{title}</h1>
             <p className="text-sm text-muted-foreground">
-              {new Date(data.timestamp).toLocaleString()}
+              更新時間：{new Date(data.timestamp).toLocaleString("zh-TW")}
             </p>
           </div>
 
@@ -146,22 +161,44 @@ export default function Page() {
   );
 
   return (
-    <div className="flex flex-col gap-2 p-2">
-      <div className="flex justify-between items-center mb-4">
-        <h1 className="text-xl font-semibold">System Status</h1>
-        <button
-          onClick={handleRefresh}
-          disabled={loading}
-          className="hover:bg-hoverbg px-3 py-2 rounded-lg flex items-center justify-center gap-2 text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          <RotateCw size={15} className={loading ? "animate-spin" : ""} />
-          重新載入
-        </button>
+    <div className="flex flex-wrap gap-2">
+      <div className="w-full text-2xl p-2 font-bold border-b border-border pb-4 mb-2">
+        LYHS Plus 總覽表
       </div>
-      <StatusCard
-        data={status}
-        title="LYHS+ Backend Status (Cloudflare Worker)"
-      />
+      <div className="flex flex-col gap-2 p-2">
+        <div className="flex justify-between items-center mb-2 min-w-[450px] h-[45px]">
+          <h1 className="text-xl font-semibold">服務狀態</h1>
+          <button
+            onClick={handleRefresh}
+            disabled={loading}
+            className="hover:bg-border border border-border transition-all px-3 py-2 rounded-full flex items-center justify-center gap-2 text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed active:scale-95"
+          >
+            <RotateCw size={15} className={loading ? "animate-spin" : ""} />
+            重新偵測
+          </button>
+        </div>
+        <StatusCard data={status} title="API 伺服器" />
+      </div>
+      <div className="flex flex-col font-custom p-2 gap-2">
+        <h1 className="p-2 text-lg font-bold flex items-center h-[45px] mb-2">
+          系統使用者人數
+        </h1>
+        <div className="bg-white dark:bg-zinc-900 rounded-2xl p-5 border-border border shadow-sm flex flex-col justify-center gap-2">
+          <UserList size={32} />
+          <div className="flex items-center gap-5">
+            <p className="text-lg opacity-50">目前</p>
+            <p className="font-custom text-4xl font-bold">{accountCount}</p>
+            <p className="text-lg opacity-50">人</p>
+          </div>
+          <Link
+            href={"https://auth.lyhsca.org/account/register?mode=normal"}
+            target="_blank"
+            className="mt-2 px-4 p-2 rounded-lg hover:bg-hoverbg border border-border text-sm"
+          >
+            前往一般用戶註冊
+          </Link>
+        </div>
+      </div>
     </div>
   );
 }
