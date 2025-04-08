@@ -49,11 +49,8 @@ export default function Page() {
   const userData = useAppSelector((state) => state.userData);
   const Loaded = useAppSelector((state) => state.systemStatus.isLoading);
   const [deleting, setDeleting] = useState<boolean>(false);
-  const [copiedStates, setCopiedStates] = useState<{ [key: string]: boolean }>(
-    {},
-  );
+  const [copiedLink, setCopiedLink] = useState("");
 
-  // 創建代碼
   const createCode = async (e: FormEvent) => {
     e.preventDefault();
     try {
@@ -78,7 +75,6 @@ export default function Page() {
     }
   };
 
-  // 刪除代碼
   const deleteCode = async (code: string) => {
     setDeleting(true);
     try {
@@ -92,14 +88,12 @@ export default function Page() {
     }
   };
 
-  //獲取代碼資料
   const getData = useCallback(async () => {
     try {
       setLoading(true);
       setCode([]);
       const response = await apiServices.getAllCodeData(userData.sessionId);
       if (response && response.data) {
-        console.log(response.data.results);
         setCode(response.data.results);
       }
     } catch (error) {
@@ -122,9 +116,9 @@ export default function Page() {
   const handleCopyCode = async (code: string) => {
     try {
       await navigator.clipboard.writeText(code);
-      setCopiedStates((prev) => ({ ...prev, [code]: true }));
+      setCopiedLink(code);
       setTimeout(() => {
-        setCopiedStates((prev) => ({ ...prev, [code]: false }));
+        setCopiedLink("");
       }, 2000);
     } catch (err) {
       console.error("Failed to copy code:", err);
@@ -262,17 +256,19 @@ export default function Page() {
                               <div className="flex gap-3 py-2 w-full">
                                 <input
                                   className="grow border rounded-xl p-2"
-                                  value={`https://auth.lyhsca.org/account/register?mode=staff&registerCode=${code.registerCode}`}
+                                  value={`https://auth.lyhsca.org/account/register/staff/${code.registerCode}`}
                                   readOnly
+                                  disabled
                                 />
                                 <button
-                                  className="flex items-center gap-2 font-medium border border-border rounded-xl text-sm p-2 px-3 w-fit bg-foreground text-background"
+                                  className="flex items-center gap-2 font-medium border border-border rounded-xl text-sm p-2 px-3 w-fit bg-foreground text-background hover:opacity-60 transition-all"
                                   onClick={() => {
-                                    const link = `https://auth.lyhsca.org/account/register?mode=staff&registerCode=${code.registerCode}`;
+                                    const link = `https://auth.lyhsca.org/account/register/staff/${code.registerCode}`;
                                     handleCopyCode(link);
                                   }}
                                 >
-                                  {copiedStates[code.registerCode] ? (
+                                  {copiedLink ===
+                                  `https://auth.lyhsca.org/account/register/staff/${code.registerCode}` ? (
                                     <Check size={18} />
                                   ) : (
                                     <Copy size={18} />

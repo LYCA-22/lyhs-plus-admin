@@ -191,7 +191,7 @@ export default function Page() {
             <p className="text-lg opacity-50">人</p>
           </div>
           <Link
-            href={"https://auth.lyhsca.org/account/register?mode=normal"}
+            href={"https://auth.lyhsca.org/account/register"}
             target="_blank"
             className="mt-2 px-4 p-2 rounded-lg hover:bg-hoverbg border border-border text-sm"
           >

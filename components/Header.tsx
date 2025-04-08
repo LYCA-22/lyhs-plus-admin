@@ -29,6 +29,7 @@ import {
   EnvelopeSimpleOpen,
   UserFocus,
   CalendarDots,
+  Wrench,
 } from "@phosphor-icons/react";
 
 const gradientPresets = [
@@ -77,6 +78,13 @@ const ITEMS: Props[] = [
     link: "/calendar",
     icon: <CalendarDots size={23} />,
     "active-icon": <CalendarDots size={23} weight="fill" />,
+  },
+  {
+    id: 5,
+    tile: "報修案件",
+    link: "/repair",
+    icon: <Wrench size={23} />,
+    "active-icon": <Wrench size={23} weight="fill" />,
   },
 ];
 

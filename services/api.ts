@@ -379,4 +379,26 @@ export const apiServices = {
       throw e;
     }
   },
+  async listCases(sessionId: string) {
+    try {
+      const response = await fetch(`${API_BASE_URL}/v1/lyps/repair/list`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${sessionId}`,
+        },
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        return result.data;
+      } else {
+        const result = await response.json();
+        throw new Error(result.error);
+      }
+    } catch (e) {
+      console.error("Error in listCases:", e);
+      throw e;
+    }
+  },
 };
