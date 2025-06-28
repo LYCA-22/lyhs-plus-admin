@@ -1,7 +1,13 @@
 import { logout } from "@/store/userSlice";
 import { Event } from "@/types";
+import { store } from "@/store/store";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+const getUserData = () => store.getState().userData;
+const sessionId = () => {
+  const userData = getUserData();
+  return decodeURIComponent(decodeURIComponent(userData.sessionId));
+};
 
 export const apiServices = {
   async getUserData(sessionId: string) {
@@ -9,7 +15,8 @@ export const apiServices = {
       const response = await fetch(`${API_BASE_URL}/v1/user/me`, {
         method: "GET",
         headers: {
-          Authorization: `Bearer ${sessionId}`,
+          "Session-Id": decodeURIComponent(decodeURIComponent(sessionId)),
+          "Login-Type": "WEB",
         },
       });
 
@@ -31,6 +38,10 @@ export const apiServices = {
     try {
       const response = await fetch(`${API_BASE_URL}/v1/status`, {
         method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          "Login-Type": "WEB",
+        },
       });
 
       if (!response.ok) {
@@ -44,14 +55,14 @@ export const apiServices = {
       throw Error("Failed to get backend status");
     }
   },
-  async Logout(sessionId: string, email: string) {
+  async Logout() {
     try {
-      console.log(email);
       const response = await fetch(`${API_BASE_URL}/v1/auth/logout`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${sessionId}`,
+          "Session-Id": sessionId(),
+          "Login-Type": "WEB",
         },
       });
 
@@ -69,13 +80,14 @@ export const apiServices = {
       throw error;
     }
   },
-  async getMailList(sessionId: string) {
+  async getMailList() {
     try {
       const response = await fetch(`${API_BASE_URL}/v1/lyps/srm/list`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${sessionId}`,
+          "Session-Id": sessionId(),
+          "Login-Type": "WEB",
         },
       });
 
@@ -97,6 +109,7 @@ export const apiServices = {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
+          "Login-Type": "WEB",
         },
         body: JSON.stringify({
           code: code,
@@ -117,7 +130,7 @@ export const apiServices = {
       throw error;
     }
   },
-  async getMailDetail(code: string, sessionId: string) {
+  async getMailDetail(code: string) {
     try {
       const response = await fetch(
         `${API_BASE_URL}/v1/lyps/srm/detail?code=${code}`,
@@ -125,7 +138,8 @@ export const apiServices = {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${sessionId}`,
+            "Session-Id": sessionId(),
+            "Login-Type": "WEB",
           },
         },
       );
@@ -143,7 +157,6 @@ export const apiServices = {
     }
   },
   async createCode(
-    sessionId: string,
     vuli: boolean,
     level: string,
     setError: (error: string) => void,
@@ -157,7 +170,8 @@ export const apiServices = {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${sessionId}`,
+            "Session-Id": sessionId(),
+            "Login-Type": "WEB",
           },
           body: JSON.stringify({
             vuli: vuli,
@@ -181,12 +195,14 @@ export const apiServices = {
       setCreateCodeStatus(false);
     }
   },
-  async getAllCodeData(sessionId: string) {
+  async getAllCodeData() {
     try {
       const response = await fetch(`${API_BASE_URL}/v1/user/staff/code/list`, {
         method: "GET",
         headers: {
-          Authorization: `Bearer ${sessionId}`,
+          "Content-Type": "application/json",
+          "Session-Id": sessionId(),
+          "Login-Type": "WEB",
         },
       });
 
@@ -202,18 +218,19 @@ export const apiServices = {
       throw error;
     }
   },
-  async deleteCode(sessionId: string, code: string) {
+  async deleteCode(code: string) {
     try {
-      const response = await fetch(`${API_BASE_URL}/auth/code/delete`, {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${sessionId}`,
+      const response = await fetch(
+        `${API_BASE_URL}/v1/user/staff/code?code=${code}`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+            "Session-Id": sessionId(),
+            "Login-Type": "WEB",
+          },
         },
-        body: JSON.stringify({
-          code: code,
-        }),
-      });
+      );
 
       if (response.ok) {
         const data = await response.json();
@@ -280,7 +297,7 @@ export const apiServices = {
     }
   },
 
-  async deleteProject(code: string, sessionId: string) {
+  async deleteProject(code: string) {
     try {
       const response = await fetch(
         `${API_BASE_URL}/v1/lyps/srm/delete?code=${code}`,
@@ -288,17 +305,18 @@ export const apiServices = {
           method: "DELETE",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${sessionId}`,
+            "Session-Id": sessionId(),
+            "Login-Type": "WEB",
           },
         },
       );
 
       if (response.ok) {
-        const data = await response.json();
-        return data;
+        return true;
       } else {
         const result = await response.json();
-        throw new Error(result.error);
+        console.error(result.error);
+        return false;
       }
     } catch (error) {
       console.error("Error in deleteProject:", error);
@@ -307,10 +325,12 @@ export const apiServices = {
   },
   async updateEvent(event: Event) {
     try {
-      const response = await fetch(`${API_BASE_URL}/event/update`, {
-        method: "POST",
+      const response = await fetch(`${API_BASE_URL}/v1/cal/update`, {
+        method: "PUT",
         headers: {
           "Content-Type": "application/json",
+          "Session-Id": sessionId(),
+          "Login-Type": "WEB",
         },
         body: JSON.stringify({
           id: event.id,
@@ -335,14 +355,13 @@ export const apiServices = {
   },
   async deleteEvent(id: string) {
     try {
-      const response = await fetch(`${API_BASE_URL}/event/delete`, {
-        method: "POST",
+      const response = await fetch(`${API_BASE_URL}/v1/cal/event?id=${id}`, {
+        method: "DELETE",
         headers: {
           "Content-Type": "application/json",
+          "Session-Id": sessionId(),
+          "Login-Type": "WEB",
         },
-        body: JSON.stringify({
-          id: id,
-        }),
       });
 
       if (response.ok) {
@@ -357,13 +376,14 @@ export const apiServices = {
       throw e;
     }
   },
-  async getAccountTotal(sessionId: string) {
+  async getAccountTotal() {
     try {
       const response = await fetch(`${API_BASE_URL}/v1/admin/account/total`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${sessionId}`,
+          "Session-Id": sessionId(),
+          "Login-Type": "WEB",
         },
       });
 
@@ -379,13 +399,14 @@ export const apiServices = {
       throw e;
     }
   },
-  async listCases(sessionId: string) {
+  async listCases() {
     try {
       const response = await fetch(`${API_BASE_URL}/v1/lyps/repair/list`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${sessionId}`,
+          "Session-Id": sessionId(),
+          "Login-Type": "WEB",
         },
       });
 

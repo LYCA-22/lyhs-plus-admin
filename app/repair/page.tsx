@@ -47,7 +47,7 @@ export default function RepairPage() {
     const getData = async () => {
       try {
         setLoading(true);
-        const result = await apiServices.listCases(userData.sessionId);
+        const result = await apiServices.listCases();
         setData(result);
         console.log(result);
       } catch (error) {

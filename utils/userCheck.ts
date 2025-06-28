@@ -31,7 +31,10 @@ export async function checkUserSession(
       return;
     }
     dispatch({ type: "systemStatus/setLoading", payload: true });
+    // 請求伺服器獲得用戶資料
     const data = await apiServices.getUserData(sessionId);
+
+    // 更新用戶資料
     dispatch(
       updateUserData({
         sessionId: sessionId,

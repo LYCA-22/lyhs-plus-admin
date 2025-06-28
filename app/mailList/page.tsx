@@ -39,16 +39,16 @@ export default function Page() {
       setLoading(false);
       return;
     }
-    const data = await apiServices.getMailList(sessionId);
+    const data = await apiServices.getMailList();
     setData(data);
     setLoading(false);
   };
 
   const deleteProject = async (code: string) => {
     setDelete(true);
-    await apiServices.deleteProject(code, userData.sessionId);
+    const result = await apiServices.deleteProject(code);
+    if (result) window.location.reload();
     setDelete(false);
-    window.location.reload();
   };
 
   useEffect(() => {

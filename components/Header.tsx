@@ -100,7 +100,7 @@ export function Header() {
   const [dialogOpen, setDialogOpen] = useState(false);
 
   const userLogout = async () => {
-    await apiServices.Logout(userData.sessionId, userData.email);
+    await apiServices.Logout();
     window.location.reload();
   };
 

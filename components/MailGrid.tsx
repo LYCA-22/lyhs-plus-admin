@@ -143,8 +143,14 @@ export function MailGrid({
                   <Trash2 size={15} />
                 </DropdownMenuItem>
                 {userData.level === "A1" && mail.handler !== userData.name && (
-                  <DropdownMenuItem className="!text-red-600 dark:hover:!bg-red-950 hover:!bg-red-100 justify-between">
-                    強制刪除
+                  <DropdownMenuItem
+                    onClick={(e) => {
+                      e.preventDefault();
+                      deleteProject(mail.searchCode);
+                    }}
+                    className="!text-red-600 dark:hover:!bg-red-950 hover:!bg-red-100 justify-between"
+                  >
+                    {deleteLoading ? "刪除中..." : "強制刪除"}
                   </DropdownMenuItem>
                 )}
               </DropdownMenuContent>

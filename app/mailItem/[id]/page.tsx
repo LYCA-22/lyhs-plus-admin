@@ -61,7 +61,7 @@ export default function MailItemPage() {
     const getMailItem = async () => {
       try {
         setLoading(true);
-        const data = await apiServices.getMailDetail(code, sessionId);
+        const data = await apiServices.getMailDetail(code);
         setData(data);
         setStatus(data.status);
       } catch (e) {

@@ -35,7 +35,8 @@ export default function Page() {
 
   useEffect(() => {
     const getAccountCount = async () => {
-      const count = await apiServices.getAccountTotal(userData.sessionId);
+      if (!userData.sessionId) return;
+      const count = await apiServices.getAccountTotal();
       setAccountCount(count);
     };
 
@@ -81,7 +82,7 @@ export default function Page() {
     data: BackendStatus | null;
     title: string;
   }) => (
-    <div className="bg-white dark:bg-zinc-900 rounded-2xl p-5 border-border border shadow-sm flex flex-col gap-3 transition-all">
+    <div className="bg-white dark:bg-zinc-900 rounded-3xl p-5 border-border border shadow-sm flex flex-col gap-3 transition-all">
       {loading ? (
         <div className="flex items-center justify-center p-5 flex-col gap-5 font-bold">
           <Loader />
@@ -166,12 +167,12 @@ export default function Page() {
         LYHS Plus 總覽表
       </div>
       <div className="flex flex-col gap-2 p-2">
-        <div className="flex justify-between items-center mb-2 min-w-[450px] h-[45px]">
+        <div className="flex justify-between items-center mb-2 h-[45px]">
           <h1 className="text-xl font-semibold">服務狀態</h1>
           <button
             onClick={handleRefresh}
             disabled={loading}
-            className="hover:bg-border border border-border transition-all px-3 py-2 rounded-full flex items-center justify-center gap-2 text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed active:scale-95"
+            className="hover:bg-border border border-border transition-all px-3 py-2 ml-8 rounded-full flex items-center justify-center gap-2 text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed active:scale-95"
           >
             <RotateCw size={15} className={loading ? "animate-spin" : ""} />
             重新偵測
@@ -183,7 +184,7 @@ export default function Page() {
         <h1 className="p-2 text-lg font-bold flex items-center h-[45px] mb-2">
           系統使用者人數
         </h1>
-        <div className="bg-white dark:bg-zinc-900 rounded-2xl p-5 border-border border shadow-sm flex flex-col justify-center gap-2">
+        <div className="bg-white dark:bg-zinc-900 rounded-3xl h-[280px] p-5 border-border border shadow-sm flex flex-col justify-center gap-2">
           <UserList size={32} />
           <div className="flex items-center gap-5">
             <p className="text-lg opacity-50">目前</p>
@@ -193,7 +194,7 @@ export default function Page() {
           <Link
             href={"https://auth.lyhsca.org/account/register"}
             target="_blank"
-            className="mt-2 px-4 p-2 rounded-lg hover:bg-hoverbg border border-border text-sm"
+            className="mt-auto px-4 p-2 rounded-xl bg-hoverbg font-medium transition-all hover:bg-sky-500 hover:text-white text-sm"
           >
             前往一般用戶註冊
           </Link>

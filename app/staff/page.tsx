@@ -59,26 +59,20 @@ export default function Page() {
         return;
       }
       setCreateCodeStatus(true);
-      await apiServices.createCode(
-        userData.sessionId,
-        vuli,
-        level,
-        setError,
-        setCreateCodeStatus,
-      );
+      await apiServices.createCode(vuli, level, setError, setCreateCodeStatus);
+      window.location.reload();
     } catch (error) {
       console.error("Error creating code:", error);
       setError("建立代碼失敗");
     } finally {
       setCreateCodeStatus(false);
-      window.location.reload();
     }
   };
 
   const deleteCode = async (code: string) => {
     setDeleting(true);
     try {
-      await apiServices.deleteCode(userData.sessionId, code);
+      await apiServices.deleteCode(code);
       window.location.reload();
     } catch (error) {
       console.error("Error deleting code:", error);
@@ -92,7 +86,8 @@ export default function Page() {
     try {
       setLoading(true);
       setCode([]);
-      const response = await apiServices.getAllCodeData(userData.sessionId);
+      if (!userData.sessionId) return;
+      const response = await apiServices.getAllCodeData();
       if (response && response.data) {
         setCode(response.data.results);
       }
