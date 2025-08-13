@@ -10,6 +10,7 @@ const sessionId = () => {
 };
 
 export const apiServices = {
+  // user
   async getUserData(sessionId: string) {
     try {
       const response = await fetch(`${API_BASE_URL}/v1/user/me`, {
@@ -34,25 +35,21 @@ export const apiServices = {
       throw Error("Failed to get user data");
     }
   },
-  async getBackendStatus() {
-    try {
-      const response = await fetch(`${API_BASE_URL}/v1/status`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          "Login-Type": "WEB",
-        },
-      });
+  async verifySessionId(sessionId: string) {
+    const response = await fetch(`${API_BASE_URL}/v1/auth/verify`, {
+      method: "GET",
+      headers: {
+        "Session-Id": decodeURIComponent(decodeURIComponent(sessionId)),
+        "Login-Type": "WEB",
+      },
+    });
 
-      if (!response.ok) {
-        const result = await response.json();
-        throw Error(result.error);
-      }
-      const data = await response.json();
-      return data;
-    } catch (e) {
-      console.error("Failed to get backend status:", e);
-      throw Error("Failed to get backend status");
+    if (!response.ok) {
+      const result = await response.json();
+      document.cookie = "sessionId=; path=/; domain=lyhsca.org;";
+      window.location.href =
+        "https://auth.lyhsca.org/account/login?redirect_url=https://admin.lyhsca.org";
+      throw Error(result.error);
     }
   },
   async Logout() {
@@ -80,6 +77,52 @@ export const apiServices = {
       throw error;
     }
   },
+
+  // service status
+  async getBackendStatus() {
+    try {
+      const response = await fetch(`${API_BASE_URL}/v1/status`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          "Login-Type": "WEB",
+        },
+      });
+
+      if (!response.ok) {
+        const result = await response.json();
+        throw Error(result.error);
+      }
+      const data = await response.json();
+      return data;
+    } catch (e) {
+      console.error("Failed to get backend status:", e);
+      throw Error("Failed to get backend status");
+    }
+  },
+  async getServiceStatus() {
+    try {
+      const response = await fetch(`${API_BASE_URL}/v1/admin/service/all`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          "Login-Type": "WEB",
+          "Session-Id": sessionId(),
+        },
+      });
+
+      if (!response.ok) {
+        const result = await response.json();
+        throw Error(result.error);
+      }
+      const data = await response.json();
+      return data;
+    } catch (e) {
+      console.error("Failed to get backend status:", e);
+      throw Error("Failed to get backend status");
+    }
+  },
+
   async getMailList() {
     try {
       const response = await fetch(`${API_BASE_URL}/v1/lyps/srm/list`, {
@@ -109,6 +152,7 @@ export const apiServices = {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
+          "Session-Id": sessionId(),
           "Login-Type": "WEB",
         },
         body: JSON.stringify({
@@ -274,6 +318,8 @@ export const apiServices = {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "Session-Id": sessionId(),
+          "Login-Type": "WEB",
         },
         body: JSON.stringify({
           id: event.id,
@@ -389,7 +435,7 @@ export const apiServices = {
 
       if (response.ok) {
         const result = await response.json();
-        return result.data["COUNT(*)"];
+        return result.data;
       } else {
         const result = await response.json();
         throw new Error(result.error);

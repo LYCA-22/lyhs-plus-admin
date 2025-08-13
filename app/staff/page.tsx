@@ -34,9 +34,10 @@ interface CodeData {
   createUserEmail: string;
   vuli: boolean;
   level: string;
-  user_number: number;
-  createdTime: string;
-  registerCode: string;
+  number: number;
+  created_at: string;
+  updated_at: string;
+  code: string;
 }
 
 export default function Page() {
@@ -123,7 +124,7 @@ export default function Page() {
   if (loading && !userData.level) {
     return (
       <div className="p-4 space-x-3 flex items-center">
-        <div className="w-6 h-6 rounded-full border-[3px] border-muted border-t-foreground animate-spin" />
+        <div className="w-6 h-6 rounded-full border-[2px] border-border border-t-foreground animate-spin" />
         <p className="font-medium">載入資料中</p>
       </div>
     );
@@ -190,6 +191,7 @@ export default function Page() {
               <TableHead>代碼類型</TableHead>
               <TableHead>帳號等級</TableHead>
               <TableHead>可用數量</TableHead>
+              <TableHead>建立時間</TableHead>
               <TableHead>動作</TableHead>
             </TableRow>
           </TableHeader>
@@ -206,19 +208,22 @@ export default function Page() {
             ) : (
               <>
                 {codeData.map((code) => (
-                  <TableRow key={code.registerCode}>
+                  <TableRow key={code.code}>
                     <TableCell className="flex justify-between items-center">
-                      {code.registerCode}
+                      {code.code}
                       <button
                         className="p-1 border border-border rounded-md"
-                        onClick={() => handleCopyCode(code.registerCode)}
+                        onClick={() => handleCopyCode(code.code)}
                       >
                         複製
                       </button>
                     </TableCell>
                     <TableCell>{code.vuli ? "大量授權" : "一般"}</TableCell>
                     <TableCell>{code.level}</TableCell>
-                    <TableCell>{code.user_number}</TableCell>
+                    <TableCell>{code.number}</TableCell>
+                    <TableCell>
+                      {new Date(code.created_at).toLocaleDateString()}
+                    </TableCell>
                     <TableCell className="items-center">
                       <DropdownMenu>
                         <DropdownMenuTrigger
@@ -251,19 +256,19 @@ export default function Page() {
                               <div className="flex gap-3 py-2 w-full">
                                 <input
                                   className="grow border rounded-xl p-2"
-                                  value={`https://auth.lyhsca.org/account/register/staff/${code.registerCode}`}
+                                  value={`https://auth.lyhsca.org/account/register/staff/${code.code}`}
                                   readOnly
                                   disabled
                                 />
                                 <button
                                   className="flex items-center gap-2 font-medium border border-border rounded-xl text-sm p-2 px-3 w-fit bg-foreground text-background hover:opacity-60 transition-all"
                                   onClick={() => {
-                                    const link = `https://auth.lyhsca.org/account/register/staff/${code.registerCode}`;
+                                    const link = `https://auth.lyhsca.org/account/register/staff/${code.code}`;
                                     handleCopyCode(link);
                                   }}
                                 >
                                   {copiedLink ===
-                                  `https://auth.lyhsca.org/account/register/staff/${code.registerCode}` ? (
+                                  `https://auth.lyhsca.org/account/register/staff/${code.code}` ? (
                                     <Check size={18} />
                                   ) : (
                                     <Copy size={18} />
@@ -293,7 +298,7 @@ export default function Page() {
                               <DialogFooter>
                                 <button
                                   className="bg-red-500 text-white rounded-xl p-2 px-4 font-medium transition-all hover:opacity-80 disabled:opacity-50 ml-auto"
-                                  onClick={() => deleteCode(code.registerCode)}
+                                  onClick={() => deleteCode(code.code)}
                                   disabled={deleting}
                                 >
                                   {deleting ? "刪除中..." : "確認刪除"}

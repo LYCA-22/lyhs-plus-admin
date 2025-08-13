@@ -1,6 +1,8 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 interface UserState {
+  userCheck: boolean;
+  sessionIdValid: boolean;
   isLoading: boolean;
   os: string;
   isMobile: boolean;
@@ -8,6 +10,8 @@ interface UserState {
 }
 
 const initialState: UserState = {
+  userCheck: true,
+  sessionIdValid: true,
   isLoading: true,
   os: "",
   isMobile: false,
