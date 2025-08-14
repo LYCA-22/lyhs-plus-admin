@@ -77,6 +77,52 @@ export const apiServices = {
       throw error;
     }
   },
+  async getAccountTotal() {
+    try {
+      const response = await fetch(`${API_BASE_URL}/v1/admin/account/total`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          "Session-Id": sessionId(),
+          "Login-Type": "WEB",
+        },
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        return result.data;
+      } else {
+        const result = await response.json();
+        throw new Error(result.error);
+      }
+    } catch (e) {
+      console.error("Error in getAccountTotal:", e);
+      throw e;
+    }
+  },
+  async getAccountList() {
+    try {
+      const response = await fetch(`${API_BASE_URL}/v1/admin/account/list`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          "Session-Id": sessionId(),
+          "Login-Type": "WEB",
+        },
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        return result.data;
+      } else {
+        const result = await response.json();
+        throw new Error(result.error);
+      }
+    } catch (e) {
+      console.error("Error in getAccountTotal:", e);
+      throw e;
+    }
+  },
 
   // service status
   async getBackendStatus() {
@@ -422,29 +468,7 @@ export const apiServices = {
       throw e;
     }
   },
-  async getAccountTotal() {
-    try {
-      const response = await fetch(`${API_BASE_URL}/v1/admin/account/total`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          "Session-Id": sessionId(),
-          "Login-Type": "WEB",
-        },
-      });
 
-      if (response.ok) {
-        const result = await response.json();
-        return result.data;
-      } else {
-        const result = await response.json();
-        throw new Error(result.error);
-      }
-    } catch (e) {
-      console.error("Error in getAccountTotal:", e);
-      throw e;
-    }
-  },
   async listCases() {
     try {
       const response = await fetch(`${API_BASE_URL}/v1/lyps/repair/list`, {

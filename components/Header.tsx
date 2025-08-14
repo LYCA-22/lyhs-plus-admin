@@ -23,6 +23,7 @@ import {
   UserFocus,
   CalendarDots,
   Wrench,
+  User,
 } from "@phosphor-icons/react";
 
 const gradientPresets = [
@@ -78,6 +79,13 @@ const ITEMS: Props[] = [
     link: "/repair",
     icon: <Wrench size={23} />,
     "active-icon": <Wrench size={23} weight="fill" />,
+  },
+  {
+    id: 6,
+    title: "使用者管理",
+    link: "/user",
+    icon: <User size={23} />,
+    "active-icon": <User size={23} weight="fill" />,
   },
 ];
 
