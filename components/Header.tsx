@@ -25,6 +25,7 @@ import {
   Wrench,
   User,
 } from "@phosphor-icons/react";
+import { FolderUser } from "@phosphor-icons/react/dist/ssr";
 
 const gradientPresets = [
   "from-blue-500 via-purple-500 to-pink-500",
@@ -87,6 +88,13 @@ const ITEMS: Props[] = [
     icon: <User size={23} />,
     "active-icon": <User size={23} weight="fill" />,
   },
+  {
+    id: 7,
+    title: "會費管理",
+    link: "/member",
+    icon: <FolderUser size={23} />,
+    "active-icon": <FolderUser size={23} weight="fill" />,
+  },
 ];
 
 export function Header() {
@@ -143,8 +151,8 @@ export function Header() {
             className="w-10 h-10"
           />
           <div>
-            <h1 className="font-bold font-custom">LYHS Plus</h1>
-            <p className="opacity-50 text-sm">管理中心</p>
+            <h1 className="opacity-50 text-sm">LYHS Plus</h1>
+            <p className="font-medium font-custom">管理中心</p>
           </div>
         </div>
         <div className="flex flex-col gap-2">

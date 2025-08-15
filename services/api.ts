@@ -1,5 +1,5 @@
 import { logout } from "@/store/userSlice";
-import { Event } from "@/types";
+import { Event, memberDataRaw } from "@/types";
 import { store } from "@/store/store";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
@@ -490,6 +490,84 @@ export const apiServices = {
     } catch (e) {
       console.error("Error in listCases:", e);
       throw e;
+    }
+  },
+
+  // Member management
+  async getMemberList() {
+    try {
+      const response = await fetch(`${API_BASE_URL}/v1/user/member/list`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          "Session-Id": sessionId(),
+          "Login-Type": "WEB",
+        },
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        return result.data;
+      } else {
+        const result = await response.json();
+        throw new Error(result.error);
+      }
+    } catch (error) {
+      console.error("Error in getMemberList:", error);
+      throw error;
+    }
+  },
+
+  async addMembers(members: memberDataRaw[]) {
+    try {
+      const response = await fetch(`${API_BASE_URL}/v1/user/member/add`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Session-Id": sessionId(),
+          "Login-Type": "WEB",
+        },
+        body: JSON.stringify({ data: members }),
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        return result;
+      } else {
+        const result = await response.json();
+        throw new Error(result.error);
+      }
+    } catch (error) {
+      console.error("Error in addMembers:", error);
+      throw error;
+    }
+  },
+
+  async updateMemberStatus(stu_id: string, isActive: boolean) {
+    try {
+      const response = await fetch(`${API_BASE_URL}/v1/user/member/status`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "Session-Id": sessionId(),
+          "Login-Type": "WEB",
+        },
+        body: JSON.stringify({
+          stu_id: stu_id,
+          isActive: isActive,
+        }),
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        return result;
+      } else {
+        const result = await response.json();
+        throw new Error(result.error);
+      }
+    } catch (error) {
+      console.error("Error in updateMemberStatus:", error);
+      throw error;
     }
   },
 };

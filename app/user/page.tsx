@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/table";
 import UpdateUserInfo from "./updateUserInfo";
 import { ApiUserData, Class, Grade } from "@/types";
+import { TriangleAlert } from "lucide-react";
 
 export default function Page() {
   const [loading, setLoading] = useState<boolean>(true);
@@ -70,11 +71,14 @@ export default function Page() {
       <div className="flex justify-between items-center mb-2">
         <h2 className="text-xl font-semibold">平台使用者管理</h2>
       </div>
-      <div className="w-full border-border border rounded-xl bg-background p-3 text-sm mb-5">
-        <h2 className="font-medium">使用警告</h2>
-        <p className="opacity-50 text-[12px]">
-          此頁面為LYHS+平台所有使用者資料，僅供使用者提出需求時尚可進行調整。請勿將個資作為娛樂或恐嚇霸凌用途。系統皆會記載各個幹部的使用紀錄，若發現不當行為將依法處理。
-        </p>
+      <div className="w-full flex gap-4 items-center border-border border rounded-xl bg-background p-3 px-5 text-sm mb-5">
+        <TriangleAlert />
+        <div>
+          <h2 className="font-medium">使用警告</h2>
+          <p className="opacity-50 text-[12px]">
+            此頁面為LYHS+平台所有使用者資料，僅供使用者提出需求時尚可進行調整。請勿將個資作為娛樂或恐嚇霸凌用途。系統皆會記載各個幹部的使用紀錄，若發現不當行為將依法處理。
+          </p>
+        </div>
       </div>
       <div className="my-2 flex items-center gap-2 font-medium text-[14px]">
         <button
