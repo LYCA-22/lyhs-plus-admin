@@ -4,6 +4,7 @@ import { apiServices } from "@/services/api";
 import { useAppSelector } from "@/store/hook";
 import { memberDataRaw, Class, Grade } from "@/types";
 import { Switch } from "@/components/ui/switch";
+import * as XLSX from "xlsx";
 import {
   Select,
   SelectContent,
@@ -36,7 +37,15 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Ellipsis, Plus, Trash2, Save, X, TriangleAlert } from "lucide-react";
+import {
+  Ellipsis,
+  Plus,
+  Trash2,
+  Save,
+  X,
+  Download,
+  TriangleAlert,
+} from "lucide-react";
 
 interface NewMemberRow {
   id: string;
@@ -168,6 +177,133 @@ export default function Page() {
     });
   };
 
+  const exportToExcel = () => {
+    try {
+      // 準備會員資料
+      const exportData = memberData.map((member, index) => ({
+        序號: index + 1,
+        姓名: member.name,
+        學號: member.stu_id,
+        班級:
+          Class[member.info.stu.class as keyof typeof Class] ||
+          member.info.stu.class,
+        年級:
+          Grade[member.info.stu.grade as keyof typeof Grade] ||
+          member.info.stu.grade,
+        座號: member.info.stu.number,
+        "LYPS ID": member.lyps_id || "",
+        會員狀態: member.info.memberShip.isActive ? "活躍" : "非活躍",
+        LYPS狀態: member.status.lyps.isconnected ? "已連接" : "未連接",
+        是否為LYPS用戶: member.status.lyps.isLypsUser ? "是" : "否",
+        加入時間: new Date(
+          member.info.memberShip.actived_at,
+        ).toLocaleDateString(),
+        最後更新: new Date(
+          member.info.memberShip.updated_at,
+        ).toLocaleDateString(),
+        承辦人: member.info.memberShip.underTaker,
+        學校: member.info.school.full_name,
+      }));
+
+      // 準備統計資料
+      const totalMembers = memberData.length;
+      const activeMembers = memberData.filter(
+        (m) => m.info.memberShip.isActive,
+      ).length;
+      const lypsUsers = memberData.filter(
+        (m) => m.status.lyps.isLypsUser,
+      ).length;
+      const connectedUsers = memberData.filter(
+        (m) => m.status.lyps.isconnected,
+      ).length;
+
+      // 班級統計
+      const classStats: { [key: string]: number } = {};
+      memberData.forEach((member) => {
+        const className =
+          Class[member.info.stu.class as keyof typeof Class] ||
+          member.info.stu.class;
+        classStats[className] = (classStats[className] || 0) + 1;
+      });
+
+      // 年級統計
+      const gradeStats: { [key: string]: number } = {};
+      memberData.forEach((member) => {
+        const gradeName =
+          Grade[member.info.stu.grade as keyof typeof Grade] ||
+          member.info.stu.grade;
+        gradeStats[gradeName] = (gradeStats[gradeName] || 0) + 1;
+      });
+
+      // 建立工作簿
+      const workbook = XLSX.utils.book_new();
+
+      // 會員名單工作表
+      const memberWorksheet = XLSX.utils.json_to_sheet(exportData);
+      const memberColWidths = [
+        { wch: 6 },
+        { wch: 12 },
+        { wch: 12 },
+        { wch: 8 },
+        { wch: 8 },
+        { wch: 6 },
+        { wch: 15 },
+        { wch: 10 },
+        { wch: 10 },
+        { wch: 12 },
+        { wch: 12 },
+        { wch: 12 },
+        { wch: 10 },
+        { wch: 20 },
+      ];
+      memberWorksheet["!cols"] = memberColWidths;
+
+      // 統計摘要工作表
+      const summaryData = [
+        { 項目: "總會員數", 數量: totalMembers },
+        { 項目: "活躍會員", 數量: activeMembers },
+        { 項目: "非活躍會員", 數量: totalMembers - activeMembers },
+        { 項目: "LYPS用戶", 數量: lypsUsers },
+        { 項目: "已連接LYPS", 數量: connectedUsers },
+        { 項目: "", 數量: "" },
+        { 項目: "班級分布", 數量: "" },
+        ...Object.entries(classStats).map(([className, count]) => ({
+          項目: `　${className}班`,
+          數量: count,
+        })),
+        { 項目: "", 數量: "" },
+        { 項目: "年級分布", 數量: "" },
+        ...Object.entries(gradeStats).map(([gradeName, count]) => ({
+          項目: `　${gradeName}`,
+          數量: count,
+        })),
+        { 項目: "", 數量: "" },
+        { 項目: "匯出時間", 數量: new Date().toLocaleString() },
+      ];
+
+      const summaryWorksheet = XLSX.utils.json_to_sheet(summaryData);
+      summaryWorksheet["!cols"] = [{ wch: 15 }, { wch: 10 }];
+
+      // 加入工作表到工作簿
+      XLSX.utils.book_append_sheet(workbook, summaryWorksheet, "統計摘要");
+      XLSX.utils.book_append_sheet(workbook, memberWorksheet, "會員名單");
+
+      // 產生檔案名稱
+      const today = new Date();
+      const dateString = today.toISOString().split("T")[0];
+      const timeString = today
+        .toLocaleTimeString("zh-TW", { hour12: false })
+        .replace(/:/g, "");
+      const fileName = `會員名單_${dateString}_${timeString}.xlsx`;
+
+      // 下載檔案
+      XLSX.writeFile(workbook, fileName);
+    } catch (error) {
+      console.error("匯出Excel失敗:", error);
+      setError("匯出Excel失敗");
+    }
+  };
+
   const updateNewMemberRow = (
     id: string,
     field: keyof NewMemberRow,
@@ -250,8 +386,7 @@ export default function Page() {
   return (
     <div className="p-4">
       <div className="flex justify-between items-center mb-5">
-        <h1 className="text-xl font-semibold">學生會會費管理</h1>
-
+        <h1 className="text-xl font-semibold">會員管理</h1>
         <div className="flex gap-2">
           {newMemberRows.length > 0 ? (
             <>
@@ -279,6 +414,15 @@ export default function Page() {
             </>
           ) : (
             <>
+              <Button
+                variant="outline"
+                onClick={exportToExcel}
+                disabled={memberData.length === 0}
+                className="rounded-xl"
+              >
+                <Download className="w-4 h-4 mr-2" />
+                匯出Excel
+              </Button>
               <Dialog open={showBatchDialog} onOpenChange={setShowBatchDialog}>
                 <DialogTrigger asChild>
                   <Button variant="outline" className="rounded-xl">
