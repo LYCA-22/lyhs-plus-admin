@@ -334,6 +334,47 @@ export const apiServices = {
       throw error;
     }
   },
+
+  // announcement
+  //
+  async addAnnouncement(
+    title: string,
+    content: string,
+    imgData: string,
+    isPriority: boolean,
+    link: string,
+    haveLink: boolean,
+  ) {
+    try {
+      const response = await fetch(`${API_BASE_URL}/v1/lyps/announcement/add`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Session-Id": sessionId(),
+          "Login-Type": "WEB",
+        },
+        body: JSON.stringify({
+          title: title,
+          content: content,
+          imgData: imgData,
+          isPriority: isPriority,
+          link: link,
+          haveLink: haveLink,
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        return data;
+      } else {
+        const result = await response.json();
+        throw new Error(result.error);
+      }
+    } catch (error) {
+      console.error("Error in addAnnouncement:", error);
+      throw error;
+    }
+  },
   async getAllEvent() {
     try {
       const response = await fetch(`${API_BASE_URL}/v1/cal/events`, {

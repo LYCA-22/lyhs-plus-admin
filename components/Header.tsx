@@ -95,6 +95,13 @@ const ITEMS: Props[] = [
     icon: <FolderUser size={23} />,
     "active-icon": <FolderUser size={23} weight="fill" />,
   },
+  {
+    id: 8,
+    title: "公告管理",
+    link: "/announcement",
+    icon: <FolderUser size={23} />,
+    "active-icon": <FolderUser size={23} weight="fill" />,
+  },
 ];
 
 export function Header() {
@@ -155,7 +162,7 @@ export function Header() {
             <p className="font-medium font-custom">管理中心</p>
           </div>
         </div>
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col">
           {ITEMS.map((item) => (
             <button
               key={item.id}
