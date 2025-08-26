@@ -265,7 +265,7 @@ export const apiServices = {
           },
           body: JSON.stringify({
             vuli: vuli,
-            level: level,
+            new_level: level,
           }),
         },
       );
