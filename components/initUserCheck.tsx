@@ -77,12 +77,12 @@ export default function SystemCheck() {
           </div>
         ) : (
           <DialogHeader className="space-y-3 mt-1">
-            <DialogTitle>您的帳號權限不足。</DialogTitle>
+            <DialogTitle>您無任何權限可訪問此系統。</DialogTitle>
             <DialogDescription>
-              您的權限過低，導致無法瀏覽本網站。請聯絡班聯會資訊組升級您的帳號等級。
+              查不到您的登入憑證或您目前登入的帳號權限不足。
             </DialogDescription>
             <Link
-              href="/login"
+              href="https://auth.lyhsca.org/account/login?redirect_url=https://admin.lyhsca.org"
               className="bg-foreground p-3 rounded-xl text-center w-full text-background"
             >
               重新登入

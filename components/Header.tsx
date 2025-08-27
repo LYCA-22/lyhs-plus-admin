@@ -15,17 +15,8 @@ import {
 import { useAppSelector } from "@/store/hook";
 import { apiServices } from "@/services/api";
 import Link from "next/link";
-import { LogOut, UserPen } from "lucide-react";
-import {
-  House,
-  EnvelopeSimple,
-  EnvelopeSimpleOpen,
-  UserFocus,
-  CalendarDots,
-  Wrench,
-  User,
-} from "@phosphor-icons/react";
-import { FolderUser } from "@phosphor-icons/react/dist/ssr";
+import { LogOut, Plus, UserPen } from "lucide-react";
+import { ITEMS } from "@/config/route";
 
 const gradientPresets = [
   "from-blue-500 via-purple-500 to-pink-500",
@@ -37,76 +28,10 @@ const gradientPresets = [
   "from-rose-400 via-fuchsia-500 to-indigo-500",
 ];
 
-type Props = {
-  id: number;
-  title: string;
-  link: string;
-  icon: React.ReactNode;
-  "active-icon": React.ReactNode;
-};
-
-const ITEMS: Props[] = [
-  {
-    id: 1,
-    title: "總覽",
-    link: "/",
-    icon: <House size={23} />,
-    "active-icon": <House size={23} weight="fill" />,
-  },
-  {
-    id: 2,
-    title: "學權信箱",
-    link: "/mailList",
-    icon: <EnvelopeSimple size={23} />,
-    "active-icon": <EnvelopeSimpleOpen size={23} weight="fill" />,
-  },
-  {
-    id: 3,
-    title: "註冊代碼管理",
-    link: "/staff",
-    icon: <UserFocus size={23} />,
-    "active-icon": <UserFocus size={23} weight="fill" />,
-  },
-  {
-    id: 4,
-    title: "行事曆",
-    link: "/calendar",
-    icon: <CalendarDots size={23} />,
-    "active-icon": <CalendarDots size={23} weight="fill" />,
-  },
-  {
-    id: 5,
-    title: "報修案件",
-    link: "/repair",
-    icon: <Wrench size={23} />,
-    "active-icon": <Wrench size={23} weight="fill" />,
-  },
-  {
-    id: 6,
-    title: "使用者管理",
-    link: "/user",
-    icon: <User size={23} />,
-    "active-icon": <User size={23} weight="fill" />,
-  },
-  {
-    id: 7,
-    title: "會費管理",
-    link: "/member",
-    icon: <FolderUser size={23} />,
-    "active-icon": <FolderUser size={23} weight="fill" />,
-  },
-  {
-    id: 8,
-    title: "公告管理",
-    link: "/announcement",
-    icon: <FolderUser size={23} />,
-    "active-icon": <FolderUser size={23} weight="fill" />,
-  },
-];
-
 export function Header() {
   const [theme, setTheme] = useState("");
   const [mounted, setMounted] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(0);
   const [gradient] = useState(
     () => gradientPresets[Math.floor(Math.random() * gradientPresets.length)],
   );
@@ -162,28 +87,79 @@ export function Header() {
             <p className="font-medium font-custom">管理中心</p>
           </div>
         </div>
-        <div className="flex flex-col">
-          {ITEMS.map((item) => (
-            <button
-              key={item.id}
-              className={`relative transition-all hover:bg-hoverbg hover:text-primary flex items-center rounded-xl justify-start active:scale-95 ${pathname === item.link ? "bg-primary text-background" : ""}`}
-            >
-              <Link className="relative p-3 px-4 w-full" href={item.link}>
-                <div className="flex font-medium gap-2">
-                  {pathname === item.link ? (
-                    <>
-                      {item["active-icon"]}
-                      <p>{item.title}</p>
-                    </>
-                  ) : (
-                    <>
-                      {item.icon}
-                      <p>{item.title}</p>
-                    </>
-                  )}
+        <div className="flex flex-col gap-2">
+          {ITEMS.map((item, index) => (
+            <>
+              {item.isGroup ? (
+                <div key={index} className="flex flex-col gap-2 m-1">
+                  <button
+                    onClick={() =>
+                      setMenuOpen(menuOpen === index + 1 ? 0 : index + 1)
+                    }
+                    className="px-3 font-medium opacity-60 flex w-full items-center justify-between"
+                  >
+                    <p>{item.title}</p>
+                    <Plus
+                      size={20}
+                      className={`${menuOpen == index + 1 ? "rotate-45" : ""} transition-all`}
+                    />
+                  </button>
+                  <ul
+                    className={`overflow-y-hidden ${menuOpen == index + 1 ? "max-h-96" : "max-h-0"} pr-2 flex flex-col gap-1 transition-all duration-700 border-l border-border ml-3`}
+                  >
+                    {item.items?.map((btn, index) => (
+                      <li
+                        key={index}
+                        className={`relative transition-all hover:bg-hoverbg hover:text-primary flex items-center rounded-r-xl justify-start active:scale-95 ${pathname === btn.link ? "bg-primary text-background" : ""}`}
+                      >
+                        <Link
+                          className="relative p-3 px-4 w-full"
+                          href={btn.link}
+                        >
+                          <div className="flex font-medium gap-2">
+                            {pathname === btn.link ? (
+                              <>
+                                {btn["active-icon"]}
+                                <p>{btn.title}</p>
+                              </>
+                            ) : (
+                              <>
+                                {btn.icon}
+                                <p>{btn.title}</p>
+                              </>
+                            )}
+                          </div>
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
-              </Link>
-            </button>
+              ) : (
+                <div
+                  key={index}
+                  className={`relative transition-all hover:bg-hoverbg hover:text-primary flex items-center rounded-xl justify-start active:scale-95 ${pathname === item.link ? "bg-primary text-background" : ""}`}
+                >
+                  <Link
+                    className="relative p-3 px-4 w-full"
+                    href={item.link as string}
+                  >
+                    <div className="flex font-medium gap-2">
+                      {pathname === item.link ? (
+                        <>
+                          {item.activeIcon}
+                          <p>{item.title}</p>
+                        </>
+                      ) : (
+                        <>
+                          {item.icon}
+                          <p>{item.title}</p>
+                        </>
+                      )}
+                    </div>
+                  </Link>
+                </div>
+              )}
+            </>
           ))}
         </div>
       </div>

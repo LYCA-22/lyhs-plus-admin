@@ -375,6 +375,40 @@ export const apiServices = {
       throw error;
     }
   },
+  async getAllAnnouncements() {
+    try {
+      const response = await fetch(`${API_BASE_URL}/v1/lyps/announcement/list`);
+      const data = await response.json();
+      return data;
+    } catch (e) {
+      console.error(e);
+    }
+  },
+  async deleteAnnouncement(id: number) {
+    try {
+      const response = await fetch(
+        `${API_BASE_URL}/v1/lyps/announcement/delete?id=${id}`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+            "Session-Id": sessionId(),
+            "Login-Type": "WEB",
+          },
+        },
+      );
+
+      if (response.ok) {
+        return true;
+      } else {
+        const result = await response.json();
+        throw new Error(result.error);
+      }
+    } catch (error) {
+      console.error("Error in deleteAnnouncement:", error);
+    }
+  },
+
   async getAllEvent() {
     try {
       const response = await fetch(`${API_BASE_URL}/v1/cal/events`, {

@@ -3,7 +3,6 @@ import { FormEvent, useState, useRef } from "react";
 import Image from "next/image";
 import { apiServices } from "@/services/api";
 import { Switch } from "@/components/ui/switch";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import {
@@ -233,10 +232,10 @@ export function AnnouncementForm({ onSuccess }: AnnouncementFormProps) {
       }}
     >
       <DialogTrigger asChild>
-        <Button className="flex items-center gap-2">
+        <button className="flex items-center gap-2 p-2 px-4 font-medium rounded-2xl bg-foreground text-background hover:opacity-50">
           <Plus size={16} />
           新增公告
-        </Button>
+        </button>
       </DialogTrigger>
 
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
@@ -245,18 +244,17 @@ export function AnnouncementForm({ onSuccess }: AnnouncementFormProps) {
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* 標題 */}
-          <div className="space-y-2">
+          <div className="space-y-2 flex flex-col gap-2 mt-2">
             <Label htmlFor="title" className="font-medium">
               標題 *
             </Label>
-            <Input
+            <input
               id="title"
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="請輸入公告標題"
-              className="w-full"
+              placeholder="公告標題"
+              className="w-full bg-background border rounded-md p-2 transition-all focus:outline-none focus:ring-2 focus:ring-primary dark:bg-zinc-800 dark:border-zinc-700"
               required
             />
           </div>
@@ -271,40 +269,64 @@ export function AnnouncementForm({ onSuccess }: AnnouncementFormProps) {
               value={content}
               onChange={(e) => setContent(e.target.value)}
               placeholder="請輸入公告內容"
-              className="w-full min-h-[100px] p-3 border border-border rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-primary dark:bg-zinc-800 dark:border-zinc-700"
+              className="w-full min-h-[100px] p-3 border border-border rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-primary dark:bg-zinc-800 dark:border-zinc-700 transition-all"
               required
             />
           </div>
-
-          {/* 優先級設置 */}
-          <div className="flex justify-between items-center border border-border rounded-lg p-3 bg-hoverbg dark:bg-zinc-900">
-            <div>
-              <Label className="font-medium">優先公告</Label>
-              <p className="text-sm text-muted-foreground">
-                優先公告會顯示在最前面，但不支援圖片上傳
-              </p>
+          <div className="flex flex-col gap-2 items-center border border-border rounded-lg p-3 bg-hoverbg dark:bg-zinc-900">
+            <div className="flex items-center justify-between w-full border-b border-border pb-4">
+              <div>
+                <Label className="font-medium">緊急公告；無圖片公告</Label>
+                <p className="text-sm text-muted-foreground">
+                  此類型公告會以文字輪播顯示在LYHS Plus
+                  App首頁以及學生會官方網站
+                </p>
+              </div>
+              <Switch
+                checked={isPriority}
+                onCheckedChange={(checked) => {
+                  setIsPriority(checked);
+                  if (checked && selectedImage) {
+                    removeImage();
+                  }
+                }}
+              />
             </div>
-            <Switch
-              checked={isPriority}
-              onCheckedChange={(checked) => {
-                setIsPriority(checked);
-                if (checked && selectedImage) {
-                  removeImage();
-                }
-              }}
-            />
+            <div className="flex flex-col justify-between w-full gap-3">
+              <div className="flex justify-between items-center">
+                <div>
+                  <Label className="font-medium">包含連結</Label>
+                  <p className="text-sm text-muted-foreground">
+                    是否在公告中包含外部連結
+                  </p>
+                </div>
+                <Switch checked={haveLink} onCheckedChange={setHaveLink} />
+              </div>
+              <div className="border-t border-border pt-3 flex gap-4">
+                <div className="w-fit">
+                  <Label htmlFor="link" className="font-medium">
+                    連結網址
+                  </Label>
+                  <p className="text-sm opacity-50">
+                    使用者可直接點擊公告至該網址
+                  </p>
+                </div>
+                <input
+                  id="link"
+                  type="url"
+                  value={link}
+                  onChange={(e) => setLink(e.target.value)}
+                  placeholder="https://example.com"
+                  disabled={!haveLink}
+                  className="grow bg-background border rounded-md p-2 transition-all focus:outline-none focus:ring-2 focus:ring-primary dark:bg-zinc-800 dark:border-zinc-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                />
+              </div>
+            </div>
           </div>
 
           {/* 圖片上傳 */}
           <div className="space-y-2">
-            <Label className="font-medium">
-              圖片 {!isPriority && "*"}
-              {isPriority && (
-                <span className="text-sm text-muted-foreground ml-2">
-                  (優先公告不支援圖片)
-                </span>
-              )}
-            </Label>
+            <Label className="font-medium">圖片 {!isPriority && "*"}</Label>
             <div className="space-y-3">
               <input
                 ref={fileInputRef}
@@ -365,35 +387,6 @@ export function AnnouncementForm({ onSuccess }: AnnouncementFormProps) {
                 </div>
               )}
             </div>
-          </div>
-
-          {/* 連結設置 */}
-          <div className="space-y-3 border border-border rounded-lg p-3 bg-hoverbg dark:bg-zinc-900">
-            <div className="flex justify-between items-center">
-              <div>
-                <Label className="font-medium">包含連結</Label>
-                <p className="text-sm text-muted-foreground">
-                  是否在公告中包含外部連結
-                </p>
-              </div>
-              <Switch checked={haveLink} onCheckedChange={setHaveLink} />
-            </div>
-
-            {haveLink && (
-              <div className="space-y-2">
-                <Label htmlFor="link" className="font-medium">
-                  連結網址
-                </Label>
-                <Input
-                  id="link"
-                  type="url"
-                  value={link}
-                  onChange={(e) => setLink(e.target.value)}
-                  placeholder="https://example.com"
-                  className="w-full"
-                />
-              </div>
-            )}
           </div>
 
           {/* 錯誤訊息 */}
