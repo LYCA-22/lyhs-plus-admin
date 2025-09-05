@@ -96,6 +96,40 @@ export interface ApiUserData {
 }
 
 export interface memberDataRaw {
+  id: number;
+  name: string;
+  stu_id: string;
+  info: {
+    stu: {
+      name: string;
+      number: number;
+      class: string;
+      grade: string;
+    };
+    school: {
+      id: number;
+      full_name: string;
+      short_name: string;
+      hd: "ms.ly.kh.edu.tw";
+    };
+    memberShip: {
+      isActive: boolean;
+      actived_at: string;
+      underTaker: string;
+      updated_at: string;
+    };
+  };
+  status: {
+    lyps: {
+      isLypsUser: boolean;
+      isconnected: boolean;
+      connected_at: string;
+    };
+  };
+  lyps_id: string;
+}
+
+export interface newMemberData {
   name: string;
   stu_id: string;
   info: {

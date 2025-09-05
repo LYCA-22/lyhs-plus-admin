@@ -1,5 +1,5 @@
 import { logout } from "@/store/userSlice";
-import { Event, memberDataRaw } from "@/types";
+import { Event, newMemberData } from "@/types";
 import { store } from "@/store/store";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
@@ -592,8 +592,7 @@ export const apiServices = {
       throw error;
     }
   },
-
-  async addMembers(members: memberDataRaw[]) {
+  async addMembers(members: newMemberData[]) {
     try {
       const response = await fetch(`${API_BASE_URL}/v1/user/member/add`, {
         method: "POST",
@@ -620,18 +619,21 @@ export const apiServices = {
 
   async updateMemberStatus(stu_id: string, isActive: boolean) {
     try {
-      const response = await fetch(`${API_BASE_URL}/v1/user/member/status`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          "Session-Id": sessionId(),
-          "Login-Type": "WEB",
+      const response = await fetch(
+        `${API_BASE_URL}/v1/user/member/updateStatus`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            "Session-Id": sessionId(),
+            "Login-Type": "WEB",
+          },
+          body: JSON.stringify({
+            stu_id: stu_id,
+            isActive: isActive,
+          }),
         },
-        body: JSON.stringify({
-          stu_id: stu_id,
-          isActive: isActive,
-        }),
-      });
+      );
 
       if (response.ok) {
         const result = await response.json();
@@ -642,6 +644,84 @@ export const apiServices = {
       }
     } catch (error) {
       console.error("Error in updateMemberStatus:", error);
+      throw error;
+    }
+  },
+
+  async batchUpdateMemberStatus(
+    updates: {
+      id: number;
+      info: {
+        stu: {
+          name: string;
+          number: number;
+          class: string;
+          grade: string;
+        };
+        school: {
+          id: number;
+          full_name: string;
+          short_name: string;
+          hd: "ms.ly.kh.edu.tw";
+        };
+        memberShip: {
+          isActive: boolean;
+          actived_at: string;
+          underTaker: string;
+          updated_at: string;
+        };
+      };
+    }[],
+  ) {
+    try {
+      const response = await fetch(
+        `${API_BASE_URL}/v1/user/member/updateStatus`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            "Session-Id": sessionId(),
+            "Login-Type": "WEB",
+          },
+          body: JSON.stringify({
+            ids: updates,
+          }),
+        },
+      );
+
+      if (response.ok) {
+        const result = await response.json();
+        return result;
+      } else {
+        const result = await response.json();
+        throw new Error(result.error);
+      }
+    } catch (error) {
+      console.error("Error in batchUpdateMemberStatus:", error);
+      throw error;
+    }
+  },
+
+  async deleteMember(id: number) {
+    try {
+      const response = await fetch(`${API_BASE_URL}/v1/user/member?id=${id}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          "Session-Id": sessionId(),
+          "Login-Type": "WEB",
+        },
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        return result;
+      } else {
+        const result = await response.json();
+        throw new Error(result.error);
+      }
+    } catch (error) {
+      console.error("Error in deleteMember:", error);
       throw error;
     }
   },

@@ -4,7 +4,7 @@ import { apiServices } from "@/services/api";
 import { useAppSelector } from "@/store/hook";
 import { memberDataRaw, Class, Grade } from "@/types";
 import { Switch } from "@/components/ui/switch";
-import * as XLSX from "xlsx";
+import { exportMembersToExcel } from "./exportUtils";
 import {
   Select,
   SelectContent,
@@ -63,7 +63,7 @@ interface BatchAddConfig {
   quantity: number;
   class: string;
   grade: string;
-  startingStuId: string;
+  startingNumber: string;
   isActive: boolean;
 }
 
@@ -79,9 +79,13 @@ export default function Page() {
     quantity: 1,
     class: "",
     grade: "",
-    startingStuId: "",
+    startingNumber: "",
     isActive: true,
   });
+  const [pendingUpdates, setPendingUpdates] = useState<Map<string, boolean>>(
+    new Map(),
+  );
+  const [batchUpdating, setBatchUpdating] = useState<boolean>(false);
   const userData = useAppSelector((state) => state.userData);
   const Loaded = useAppSelector((state) => state.systemStatus.isLoading);
 
@@ -137,15 +141,15 @@ export default function Page() {
     if (
       !batchConfig.class ||
       !batchConfig.grade ||
-      !batchConfig.startingStuId
+      !batchConfig.startingNumber
     ) {
       setBatchError("請填寫所有必填欄位");
       return;
     }
 
-    const startId = parseInt(batchConfig.startingStuId);
-    if (isNaN(startId)) {
-      setBatchError("學號起始值必須是數字");
+    const startNumber = parseInt(batchConfig.startingNumber);
+    if (isNaN(startNumber)) {
+      setBatchError("座號起始值必須是數字");
       return;
     }
 
@@ -154,8 +158,8 @@ export default function Page() {
       const newRow: NewMemberRow = {
         id: `${Date.now()}_${i}`,
         name: "",
-        stu_id: (startId + i).toString(),
-        number: "",
+        stu_id: "",
+        number: (startNumber + i).toString(),
         class: batchConfig.class,
         grade: batchConfig.grade,
         lyps_id: "",
@@ -172,132 +176,14 @@ export default function Page() {
       quantity: 1,
       class: "",
       grade: "",
-      startingStuId: "",
+      startingNumber: "",
       isActive: true,
     });
   };
 
   const exportToExcel = () => {
     try {
-      // 準備會員資料
-      const exportData = memberData.map((member, index) => ({
-        序號: index + 1,
-        姓名: member.name,
-        學號: member.stu_id,
-        班級:
-          Class[member.info.stu.class as keyof typeof Class] ||
-          member.info.stu.class,
-        年級:
-          Grade[member.info.stu.grade as keyof typeof Grade] ||
-          member.info.stu.grade,
-        座號: member.info.stu.number,
-        "LYPS ID": member.lyps_id || "",
-        會員狀態: member.info.memberShip.isActive ? "活躍" : "非活躍",
-        LYPS狀態: member.status.lyps.isconnected ? "已連接" : "未連接",
-        是否為LYPS用戶: member.status.lyps.isLypsUser ? "是" : "否",
-        加入時間: new Date(
-          member.info.memberShip.actived_at,
-        ).toLocaleDateString(),
-        最後更新: new Date(
-          member.info.memberShip.updated_at,
-        ).toLocaleDateString(),
-        承辦人: member.info.memberShip.underTaker,
-        學校: member.info.school.full_name,
-      }));
-
-      // 準備統計資料
-      const totalMembers = memberData.length;
-      const activeMembers = memberData.filter(
-        (m) => m.info.memberShip.isActive,
-      ).length;
-      const lypsUsers = memberData.filter(
-        (m) => m.status.lyps.isLypsUser,
-      ).length;
-      const connectedUsers = memberData.filter(
-        (m) => m.status.lyps.isconnected,
-      ).length;
-
-      // 班級統計
-      const classStats: { [key: string]: number } = {};
-      memberData.forEach((member) => {
-        const className =
-          Class[member.info.stu.class as keyof typeof Class] ||
-          member.info.stu.class;
-        classStats[className] = (classStats[className] || 0) + 1;
-      });
-
-      // 年級統計
-      const gradeStats: { [key: string]: number } = {};
-      memberData.forEach((member) => {
-        const gradeName =
-          Grade[member.info.stu.grade as keyof typeof Grade] ||
-          member.info.stu.grade;
-        gradeStats[gradeName] = (gradeStats[gradeName] || 0) + 1;
-      });
-
-      // 建立工作簿
-      const workbook = XLSX.utils.book_new();
-
-      // 會員名單工作表
-      const memberWorksheet = XLSX.utils.json_to_sheet(exportData);
-      const memberColWidths = [
-        { wch: 6 },
-        { wch: 12 },
-        { wch: 12 },
-        { wch: 8 },
-        { wch: 8 },
-        { wch: 6 },
-        { wch: 15 },
-        { wch: 10 },
-        { wch: 10 },
-        { wch: 12 },
-        { wch: 12 },
-        { wch: 12 },
-        { wch: 10 },
-        { wch: 20 },
-      ];
-      memberWorksheet["!cols"] = memberColWidths;
-
-      // 統計摘要工作表
-      const summaryData = [
-        { 項目: "總會員數", 數量: totalMembers },
-        { 項目: "活躍會員", 數量: activeMembers },
-        { 項目: "非活躍會員", 數量: totalMembers - activeMembers },
-        { 項目: "LYPS用戶", 數量: lypsUsers },
-        { 項目: "已連接LYPS", 數量: connectedUsers },
-        { 項目: "", 數量: "" },
-        { 項目: "班級分布", 數量: "" },
-        ...Object.entries(classStats).map(([className, count]) => ({
-          項目: `　${className}班`,
-          數量: count,
-        })),
-        { 項目: "", 數量: "" },
-        { 項目: "年級分布", 數量: "" },
-        ...Object.entries(gradeStats).map(([gradeName, count]) => ({
-          項目: `　${gradeName}`,
-          數量: count,
-        })),
-        { 項目: "", 數量: "" },
-        { 項目: "匯出時間", 數量: new Date().toLocaleString() },
-      ];
-
-      const summaryWorksheet = XLSX.utils.json_to_sheet(summaryData);
-      summaryWorksheet["!cols"] = [{ wch: 15 }, { wch: 10 }];
-
-      // 加入工作表到工作簿
-      XLSX.utils.book_append_sheet(workbook, summaryWorksheet, "統計摘要");
-      XLSX.utils.book_append_sheet(workbook, memberWorksheet, "會員名單");
-
-      // 產生檔案名稱
-      const today = new Date();
-      const dateString = today.toISOString().split("T")[0];
-      const timeString = today
-        .toLocaleTimeString("zh-TW", { hour12: false })
-        .replace(/:/g, "");
-      const fileName = `會員名單_${dateString}_${timeString}.xlsx`;
-
-      // 下載檔案
-      XLSX.writeFile(workbook, fileName);
+      exportMembersToExcel(memberData);
     } catch (error) {
       console.error("匯出Excel失敗:", error);
       setError("匯出Excel失敗");
@@ -374,6 +260,119 @@ export default function Page() {
     }
   };
 
+  const toggleMemberStatus = (stuId: string, currentStatus: boolean) => {
+    const newStatus = !currentStatus;
+    setPendingUpdates((prev) => {
+      const newMap = new Map(prev);
+
+      // Find original status from memberData
+      const originalMember = memberData.find((m) => m.stu_id === stuId);
+      const originalStatus = originalMember?.info.memberShip.isActive || false;
+
+      if (newStatus === originalStatus) {
+        // If new status matches original, remove from pending updates
+        newMap.delete(stuId);
+      } else {
+        // Add to pending updates
+        newMap.set(stuId, newStatus);
+      }
+
+      return newMap;
+    });
+  };
+
+  const commitPendingUpdates = async () => {
+    try {
+      setBatchUpdating(true);
+      setError("");
+
+      const updateData = Array.from(pendingUpdates.entries()).map(
+        ([stuId, status]) => {
+          const member = memberData.find((m) => m.stu_id === stuId);
+          return {
+            id: member?.id || 0,
+            info: {
+              stu: {
+                name: member?.name || "",
+                number: member?.info.stu.number || 0,
+                class: member?.info.stu.class || "",
+                grade: member?.info.stu.grade || "",
+              },
+              school: schoolData,
+              memberShip: {
+                isActive: status,
+                actived_at: status
+                  ? new Date().toISOString()
+                  : member?.info.memberShip.actived_at ||
+                    new Date().toISOString(),
+                underTaker: userData.name,
+                updated_at: new Date().toISOString(),
+              },
+            },
+          };
+        },
+      );
+
+      await apiServices.batchUpdateMemberStatus(updateData);
+
+      // Update local state
+      setMemberData((prevData) =>
+        prevData.map((member) =>
+          pendingUpdates.has(member.stu_id)
+            ? {
+                ...member,
+                info: {
+                  ...member.info,
+                  memberShip: {
+                    ...member.info.memberShip,
+                    isActive: pendingUpdates.get(member.stu_id)!,
+                    updated_at: new Date().toISOString(),
+                  },
+                },
+              }
+            : member,
+        ),
+      );
+
+      setPendingUpdates(new Map());
+    } catch (error) {
+      console.error("Failed to batch update member status:", error);
+      setError("批次更新會員狀態失敗");
+    } finally {
+      setBatchUpdating(false);
+    }
+  };
+
+  const cancelPendingUpdates = () => {
+    setPendingUpdates(new Map());
+  };
+
+  const deleteMember = async (memberId: number, memberName: string) => {
+    if (!confirm(`確定要刪除會員「${memberName}」嗎？此操作無法復原。`)) {
+      return;
+    }
+
+    try {
+      await apiServices.deleteMember(memberId);
+      // Update local state by removing the deleted member
+      setMemberData((prevData) =>
+        prevData.filter((member) => member.id !== memberId),
+      );
+      // Remove from pending updates if exists
+      setPendingUpdates((prev) => {
+        const newMap = new Map(prev);
+        const deletedMember = memberData.find((m) => m.id === memberId);
+        if (deletedMember) {
+          newMap.delete(deletedMember.stu_id);
+        }
+        return newMap;
+      });
+    } catch (error) {
+      console.error("Failed to delete member:", error);
+      setError("刪除會員失敗");
+    }
+  };
+
   if (loading && !userData.level) {
     return (
       <div className="p-4 space-x-3 flex items-center justify-center h-full w-full">
@@ -414,6 +413,27 @@ export default function Page() {
             </>
           ) : (
             <>
+              {pendingUpdates.size > 0 && (
+                <>
+                  <Button
+                    onClick={commitPendingUpdates}
+                    disabled={batchUpdating}
+                    className="rounded-xl bg-blue-600 hover:bg-blue-700 text-white"
+                  >
+                    {batchUpdating
+                      ? "更新中..."
+                      : `確認更新 ${pendingUpdates.size} 位會員`}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={cancelPendingUpdates}
+                    disabled={batchUpdating}
+                    className="rounded-xl"
+                  >
+                    取消變更
+                  </Button>
+                </>
+              )}
               <Button
                 variant="outline"
                 onClick={exportToExcel}
@@ -459,15 +479,15 @@ export default function Page() {
                         />
                       </div>
                       <div>
-                        <Label htmlFor="startingStuId">學號起始值</Label>
+                        <Label htmlFor="startingNumber">座號起始值</Label>
                         <Input
-                          id="startingStuId"
-                          placeholder="例如: 121053"
-                          value={batchConfig.startingStuId}
+                          id="startingNumber"
+                          placeholder="例如: 1"
+                          value={batchConfig.startingNumber}
                           onChange={(e) =>
                             setBatchConfig({
                               ...batchConfig,
-                              startingStuId: e.target.value,
+                              startingNumber: e.target.value,
                             })
                           }
                         />
@@ -699,101 +719,97 @@ export default function Page() {
           ))}
 
           {/* Existing member rows */}
-          {memberData.map((member) => (
-            <TableRow key={member.stu_id}>
-              <TableCell className="font-medium">{member.name}</TableCell>
-              <TableCell>{member.stu_id}</TableCell>
-              <TableCell>
-                {Class[member.info.stu.class as keyof typeof Class] ||
-                  member.info.stu.class}
-              </TableCell>
-              <TableCell>
-                {Grade[member.info.stu.grade as keyof typeof Grade] ||
-                  member.info.stu.grade}
-              </TableCell>
-              <TableCell>{member.info.stu.number}</TableCell>
-              <TableCell>{member.lyps_id || "-"}</TableCell>
-              <TableCell>
-                <Switch
-                  checked={member.info.memberShip.isActive}
-                  onCheckedChange={async (checked) => {
-                    try {
-                      await apiServices.updateMemberStatus(
-                        member.stu_id,
-                        checked,
-                      );
-                      // Update local state
-                      setMemberData((prevData) =>
-                        prevData.map((m) =>
-                          m.stu_id === member.stu_id
-                            ? {
-                                ...m,
-                                info: {
-                                  ...m.info,
-                                  memberShip: {
-                                    ...m.info.memberShip,
-                                    isActive: checked,
-                                    updated_at: new Date().toISOString(),
-                                  },
-                                },
-                              }
-                            : m,
-                        ),
-                      );
-                    } catch (error) {
-                      console.error("Failed to update member status:", error);
-                      setError("更新會員狀態失敗");
-                    }
-                  }}
-                />
-              </TableCell>
-              <TableCell>
-                <span
-                  className={`px-2 py-1 text-xs rounded-full ${
-                    member.info.memberShip.isActive
-                      ? "bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300"
-                      : "bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300"
-                  }`}
-                >
-                  {member.info.memberShip.isActive ? "已繳費" : "未繳費"}
-                </span>
-              </TableCell>
-              <TableCell>
-                <span
-                  className={`px-2 py-1 text-xs rounded-full ${
-                    member.status.lyps.isconnected
-                      ? "bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300"
-                      : "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400"
-                  }`}
-                >
-                  {member.status.lyps.isconnected ? "已連接" : "未連接"}
-                </span>
-              </TableCell>
-              <TableCell>
-                {new Date(
-                  member.info.memberShip.actived_at,
-                ).toLocaleDateString()}
-              </TableCell>
-              <TableCell>
-                <DropdownMenu>
-                  <DropdownMenuTrigger className="rounded-xl">
-                    <div className="flex p-1 justify-center w-fit items-center rounded-xl hover:bg-zinc-300 hover:dark:bg-zinc-600">
-                      <Ellipsis
-                        size={20}
-                        className="text-foreground opacity-50"
-                      />
-                    </div>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent className="mr-5 -mt-2">
-                    <DropdownMenuItem className="!text-red-600 dark:!text-red-500 hover:!bg-red-100 dark:hover:!bg-red-950">
-                      <Trash2 size={15} className="mr-2" />
-                      刪除會員
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </TableCell>
-            </TableRow>
-          ))}
+          {memberData.map((member) => {
+            const currentStatus = pendingUpdates.has(member.stu_id)
+              ? pendingUpdates.get(member.stu_id)!
+              : member.info.memberShip.isActive;
+            const isPending = pendingUpdates.has(member.stu_id);
+
+            return (
+              <TableRow
+                key={member.stu_id}
+                className={
+                  isPending ? "bg-yellow-50 dark:bg-yellow-900/20" : ""
+                }
+              >
+                <TableCell className="font-medium">{member.name}</TableCell>
+                <TableCell>{member.stu_id}</TableCell>
+                <TableCell>
+                  {Class[member.info.stu.class as keyof typeof Class] ||
+                    member.info.stu.class}
+                </TableCell>
+                <TableCell>
+                  {Grade[member.info.stu.grade as keyof typeof Grade] ||
+                    member.info.stu.grade}
+                </TableCell>
+                <TableCell>{member.info.stu.number}</TableCell>
+                <TableCell>{member.lyps_id || "-"}</TableCell>
+                <TableCell>
+                  <div className="flex items-center gap-2">
+                    <Switch
+                      checked={currentStatus}
+                      onCheckedChange={() =>
+                        toggleMemberStatus(member.stu_id, currentStatus)
+                      }
+                    />
+                    {isPending && (
+                      <span className="text-xs text-orange-600 dark:text-orange-400">
+                        待更新
+                      </span>
+                    )}
+                  </div>
+                </TableCell>
+                <TableCell>
+                  <span
+                    className={`px-2 py-1 text-xs rounded-full ${
+                      member.info.memberShip.isActive
+                        ? "bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300"
+                        : "bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300"
+                    }`}
+                  >
+                    {member.info.memberShip.isActive ? "已繳費" : "未繳費"}
+                  </span>
+                </TableCell>
+                <TableCell>
+                  <span
+                    className={`px-2 py-1 text-xs rounded-full ${
+                      member.status.lyps.isconnected
+                        ? "bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300"
+                        : "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400"
+                    }`}
+                  >
+                    {member.status.lyps.isconnected ? "已連接" : "未連接"}
+                  </span>
+                </TableCell>
+                <TableCell>
+                  {new Date(
+                    member.info.memberShip.actived_at,
+                  ).toLocaleDateString()}
+                </TableCell>
+                <TableCell>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger className="rounded-xl">
+                      <div className="flex p-1 justify-center w-fit items-center rounded-xl hover:bg-zinc-300 hover:dark:bg-zinc-600">
+                        <Ellipsis
+                          size={20}
+                          className="text-foreground opacity-50"
+                        />
+                      </div>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent className="mr-5 -mt-2">
+                      <DropdownMenuItem
+                        className="!text-red-600 dark:!text-red-500 hover:!bg-red-100 dark:hover:!bg-red-950"
+                        onClick={() => deleteMember(member.id, member.name)}
+                      >
+                        <Trash2 size={15} className="mr-2" />
+                        刪除會員
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </TableCell>
+              </TableRow>
+            );
+          })}
 
           {/* Show empty state only when no data and not loading */}
           {memberData.length === 0 &&
