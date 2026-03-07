@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 
-export function proxy(req: NextRequest) {
+export const runtime = "edge";
+
+export function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
   const access_token = req.cookies.get("lyps_access_token");
 
