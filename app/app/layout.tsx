@@ -77,7 +77,7 @@ export default function AppLayout({
     <Provider store={store}>
       <main className="relative flex items-center h-dvh overflow-hidden">
         <div
-          className={`flex flex-col space-y-3 relative bg-zinc-100 border-r border-border h-full p-3 ${isCollapsed ? "" : "min-w-3xs"}`}
+          className={`flex flex-col space-y-3 relative bg-zinc-100 border-r border-border h-full p-3 ${isCollapsed ? "min-w-fit" : "min-w-3xs"}`}
         >
           <div className="flex items-center justify-between">
             <Image

@@ -1,64 +1,135 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import { Button } from "@/components/ui/button";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { ApiService } from "@/service/api";
+import { userMemberData } from "@/types";
+import {
+  Block,
+  Check,
+  InfoCircle,
+  ListPlus,
+  Plus,
+  Trash,
+  X,
+} from "@boxicons/react";
+import { getCookie } from "cookies-next/client";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+
+export default function MemberPage() {
+  const [memberList, setMemberList] = useState<userMemberData[]>([]);
+  const [filterGrade, setFilterGrade] = useState<string>("");
+  const router = useRouter();
+
+  useEffect(() => {
+    const FetchMemberList = async () => {
+      const access_token = getCookie("lyps_access_token");
+      const memberListData = await ApiService.getMemberList(access_token || "");
+      setMemberList(memberListData);
+    };
+
+    FetchMemberList();
+  }, []);
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white sm:items-start">
-        <Image
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <h1 className="text-xl font-bold">會員資料管理</h1>
+        <div className="flex items-center gap-4">
+          <Button onClick={() => router.push("/app/member/batch")}>
+            <ListPlus size="sm" />
+            批量新增會員
+          </Button>
+          <Button variant="secondary" className="border border-border">
+            <Plus size="sm" />
+            單一新增會員
+          </Button>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+      </div>
+      <div className="border border-border font-medium rounded-md p-2 flex items-center gap-2">
+        <InfoCircle size="sm" />
+        <p>KSA服務只能用本人啟用，系統管理員無法直接從此平台啟用。</p>
+      </div>
+      <div className="flex items-center gap-2">
+        <button
+          onClick={() => setFilterGrade("")}
+          className={`text-sm font-medium border border-border rounded-md p-2 px-4 ${filterGrade === "" ? "bg-primary text-white" : ""}`}
+        >
+          全部
+        </button>
+        <button
+          onClick={() => setFilterGrade("高一")}
+          className={`text-sm font-medium border border-border rounded-md p-2 px-4 ${filterGrade === "高一" ? "bg-primary text-white" : ""}`}
+        >
+          高一
+        </button>
+        <button
+          onClick={() => setFilterGrade("高二")}
+          className={`text-sm font-medium border border-border rounded-md p-2 px-4 ${filterGrade === "高二" ? "bg-primary text-white" : ""}`}
+        >
+          高二
+        </button>
+        <button
+          onClick={() => setFilterGrade("高三")}
+          className={`text-sm font-medium border border-border rounded-md p-2 px-4 ${filterGrade === "高三" ? "bg-primary text-white" : ""}`}
+        >
+          高三
+        </button>
+      </div>
+      <div className="border border-border rounded-md overflow-hidden">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>學號</TableHead>
+              <TableHead>姓名</TableHead>
+              <TableHead>班級</TableHead>
+              <TableHead>座號</TableHead>
+              <TableHead>會費身份</TableHead>
+              <TableHead>KSA 服務狀態</TableHead>
+              <TableHead>建立時間</TableHead>
+              <TableHead>動作</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {memberList
+              .filter(
+                (item) => filterGrade === "" || item.grade === filterGrade,
+              )
+              .map((item, index) => (
+                <TableRow key={index}>
+                  <TableCell className="font-medium">{item.stu_id}</TableCell>
+                  <TableCell>{item.zh_name}</TableCell>
+                  <TableCell>
+                    {item.grade}
+                    {item.class_name}
+                  </TableCell>
+                  <TableCell>{item.number}</TableCell>
+                  <TableCell>
+                    {item.is_member ? <Check size="sm" /> : <X size="sm" />}
+                  </TableCell>
+                  <TableCell>{item.ksa_enabled ? "啟用" : "未啟用"}</TableCell>
+                  <TableCell>
+                    {new Date(item.created_at).toLocaleString("zh-TW")}
+                  </TableCell>
+                  <TableCell className="flex items-center gap-2">
+                    <button>
+                      <Trash size="sm" />
+                    </button>
+                    <Block size="sm" />
+                  </TableCell>
+                </TableRow>
+              ))}
+          </TableBody>
+        </Table>
+      </div>
     </div>
   );
 }
