@@ -6,6 +6,7 @@ import { loadUserData } from "@/store/userSlice";
 import { userMemberData } from "@/types";
 import {
   ArrowFromLeftStroke,
+  Burger,
   DockLeft,
   DockLeftAlt,
   Group,
@@ -70,6 +71,16 @@ export default function AppLayout({
         />
       ),
       href: "/ann",
+    },
+    {
+      name: "午餐管理",
+      icon: (
+        <Burger
+          size="sm"
+          pack={pathname === "/app/lunch" ? "filled" : "basic"}
+        />
+      ),
+      href: "/lunch",
     },
   ];
 
